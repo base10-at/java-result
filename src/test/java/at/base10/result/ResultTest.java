@@ -1,10 +1,13 @@
 package at.base10.result;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static at.base10.result.Result.Fn.allMatch;
 import static at.base10.result.Result.Fn.anyMatch;
@@ -221,4 +224,50 @@ class ResultTest {
         assertEquals(42, err.get());
     }
 
+    @Nested
+    public class ResultPromiseTest {
+
+        Function<Integer, Result<Integer, String>> delayWithTryCatch(int ms) {
+            try {
+                Thread.sleep(ms);
+            } catch (InterruptedException e) {
+                return x -> error("FAIL");
+            }
+            return x -> ok(x * 2);
+        }
+
+        CompletableFuture<Result<Integer, String>> promise(int ms, int x) {
+            var p = new CompletableFuture<Result<Integer, String>>();
+
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(ms);
+                    p.complete(ok(x * 2));
+                } catch (InterruptedException e) {
+                    p.complete(error("FAIL"));
+                }
+            }).start();
+
+            return p;
+        }
+
+
+        @Test
+        void test_delay_1() {
+            assertResultIsOkAndEquals(42,
+                    new Result.Ok<Integer, String>(21)
+                            .then(bind(delayWithTryCatch(32)))
+            );
+        }
+        @Test
+        void test_delay_2() {
+
+            assertResultIsOkAndEquals(42,
+                    new Result.Ok<Integer, String>(21)
+                            .then(bind(x ->promise(100,x).join()))
+            );
+        }
+
+    }
 }

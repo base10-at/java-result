@@ -77,7 +77,15 @@ public abstract sealed class Result<V, E> {
         return new Ok<>(value);
     }
 
+    public static <V, E> Result<V, E> ok(V value, Class<E> c) {
+        return new Ok<>(value);
+    }
+
     public static <V, E> Result<V, E> error(E error) {
+        return new Error<>(error);
+    }
+
+    public static <V, E> Result<V, E> error(E error, Class<V> c) {
         return new Error<>(error);
     }
 
