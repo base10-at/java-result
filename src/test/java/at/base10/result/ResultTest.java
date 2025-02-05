@@ -94,6 +94,7 @@ class ResultTest {
         assertFalse(failure(42).isSuccess());
     }
 
+    @SuppressWarnings({"SimplifiableAssertion", "EqualsBetweenInconvertibleTypes", "ConstantValue"})
     @Test
     void test_equals_failure() {
         // this setup is required to hit all branches in equals
@@ -102,6 +103,7 @@ class ResultTest {
         assertFalse(failure(42).equals(new Object()));
     }
 
+    @SuppressWarnings({"SimplifiableAssertion", "EqualsBetweenInconvertibleTypes", "ConstantValue"})
     @Test
     void test_equals_success() {
         // this setup is required to hit all branches in equals
