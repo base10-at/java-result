@@ -8,43 +8,37 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static at.base10.result.Result.Applicative;
 import static at.base10.result.Result.Failure;
-import static at.base10.result.Result.Monadic;
-import static at.base10.result.Result.Operator.allMatch;
-import static at.base10.result.Result.Operator.anyMatch;
-import static at.base10.result.Result.Operator.bind;
-import static at.base10.result.Result.Operator.bindAsync;
-import static at.base10.result.Result.Operator.bindFailure;
-import static at.base10.result.Result.Operator.bindFailureAsync;
-import static at.base10.result.Result.Operator.count;
-import static at.base10.result.Result.Operator.defaultsTo;
-import static at.base10.result.Result.Operator.flip;
-import static at.base10.result.Result.Operator.isFailure;
-import static at.base10.result.Result.Operator.isSuccess;
-import static at.base10.result.Result.Operator.map;
-import static at.base10.result.Result.Operator.mapFailure;
-import static at.base10.result.Result.Operator.peek;
-import static at.base10.result.Result.Operator.then;
-import static at.base10.result.Result.Operator.toList;
-import static at.base10.result.Result.Operator.toOptional;
-import static at.base10.result.Result.Operator.toStream;
+
+import static at.base10.result.Operator.allMatch;
+import static at.base10.result.Operator.anyMatch;
+import static at.base10.result.Operator.bind;
+import static at.base10.result.Operator.bindAsync;
+import static at.base10.result.Operator.bindFailure;
+import static at.base10.result.Operator.bindFailureAsync;
+import static at.base10.result.Operator.count;
+import static at.base10.result.Operator.defaultsTo;
+import static at.base10.result.Operator.flip;
+import static at.base10.result.Operator.isFailure;
+import static at.base10.result.Operator.isSuccess;
+import static at.base10.result.Operator.map;
+import static at.base10.result.Operator.mapFailure;
+import static at.base10.result.Operator.peek;
+import static at.base10.result.Operator.then;
+import static at.base10.result.Operator.toList;
+import static at.base10.result.Operator.toOptional;
+import static at.base10.result.Operator.toStream;
 import static at.base10.result.Result.Success;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ResultTest {
 
@@ -53,7 +47,7 @@ class ResultTest {
         assertInstanceOf(Result.class, result);
         assertInstanceOf(Success.class, result);
         assertEquals(value, result.getValue());
-        assertNull(result.getFailure());
+        assertThrows(NoSuchElementException.class, result::getFailure, "No value present");
     }
 
     private static <V, E> void assertFailureEquals(E value, Result<V, E> result) {
@@ -62,7 +56,7 @@ class ResultTest {
         assertInstanceOf(Failure.class, result);
         assertInstanceOf(Failure.class, result);
         assertEquals(value, result.getFailure());
-        assertNull(result.getValue());
+        assertThrows(NoSuchElementException.class, result::getValue, "No value present");
     }
 
 
@@ -395,7 +389,7 @@ class ResultTest {
         @Test
         void test_delay_1() {
             assertSuccessEquals(42,
-                    new Success<Integer, String>(21)
+                    Result.<Integer, String>success(21)
                             .thenApply(bind(delayWithTryCatch(32)))
             );
         }
@@ -404,7 +398,7 @@ class ResultTest {
         void test_delay_2() {
 
             assertSuccessEquals(42,
-                    new Success<Integer, String>(21)
+                    Result.<Integer, String>success(21)
                             .thenApply(bind(x -> promiseResultInt(100, x, true).join()))
             );
         }
@@ -413,7 +407,7 @@ class ResultTest {
         void test_bindAsync_to_success_if_Success() {
 
             assertSuccessEquals(42,
-                    new Success<Integer, String>(22)
+                    Result.<Integer, String>success(22)
                             .thenApply(bindAsync(x -> promiseResultInt(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -424,7 +418,7 @@ class ResultTest {
         void test_bindAsync_to_success_if_Failure() {
 
             assertFailureEquals("INIT",
-                    new Failure<Integer, String>("INIT")
+                    Result.<Integer, String>failure("INIT")
                             .thenApply(bindAsync(x -> promiseResultInt(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -435,7 +429,7 @@ class ResultTest {
         void test_bindAsync_to_Failure_if_Success() {
 
             assertFailureEquals("Failure",
-                    new Success<Integer, String>(22)
+                    Result.<Integer, String>success(22)
                             .thenApply(bindAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -446,7 +440,7 @@ class ResultTest {
         void test_bindAsync_to_Failure_if_Failure() {
 
             assertFailureEquals("INIT",
-                    new Failure<Integer, String>("INIT")
+                    Result.<Integer, String>failure("INIT")
                             .thenApply(bindAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -457,7 +451,7 @@ class ResultTest {
         void test_bindFailureAsync_to_success_if_Success() {
 
             assertSuccessEquals(20,
-                    new Success<Integer, String>(22)
+                    Result.<Integer, String>success(22)
                             .thenApply(bindFailureAsync(x -> promiseResultString(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -468,7 +462,7 @@ class ResultTest {
         void test_bindFailureAsync_to_success_if_Failure() {
 
             assertSuccessEquals(42,
-                    new Failure<Integer, Integer>(22)
+                    Result.<Integer, Integer>failure(22)
                             .thenApply(bindFailureAsync(x -> promiseResultInt(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -479,7 +473,7 @@ class ResultTest {
         void test_bindFailureAsync_to_Failure_if_Success() {
 
             assertSuccessEquals(20,
-                    new Success<Integer, String>(22)
+                    Result.<Integer, String>success(22)
                             .thenApply(bindFailureAsync(x -> promiseResultString(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
@@ -491,7 +485,7 @@ class ResultTest {
         void test_bindFailureAsync_to_Failure_if_Failure() {
 
             assertFailureEquals("Failure",
-                    new Failure<Integer, Integer>(22)
+                    Result.<Integer, Integer>failure(22)
                             .thenApply(bindFailureAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
