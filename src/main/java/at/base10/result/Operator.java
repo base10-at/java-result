@@ -25,19 +25,15 @@ public final class Operator {
             Function<S, S2> mapper,
             Function<F, F2> errMapper
     ) {
-        return r -> r.either(
-                v -> Result.success(mapper.apply(v)),
-                e -> Result.failure(errMapper.apply(e))
-        );
+        return r -> r.map(mapper, errMapper);
     }
 
-
     public static <S, S2, F> Function<Result<S, F>, Result<S2, F>> map(Function<S, S2> mapper) {
-        return map(mapper, Function.identity());
+        return r -> r.map(mapper);
     }
 
     public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> mapFailure(Function<F, F2> mapper) {
-        return map(Function.identity(), mapper);
+        return r -> r.mapFailure(mapper);
     }
 
     public static <S, F> Function<Result<S, F>, Result<S, F>> peek(
@@ -59,14 +55,15 @@ public final class Operator {
 
 
     public static <S, S2, F> Function<Result<S, F>, S2> then(Function<Result<S, F>, S2> fn) {
-        return r -> r.thenApply(fn);
+        return r -> r.then(fn);
     }
 
     public static <S, S2, F> Function<Result<S, F>, Result<S2, F>> bind(Function<S, Result<S2, F>> binding) {
-        return r -> r.either(
-                binding,
-                Result::failure
-        );
+        return r -> r.bind(binding);
+    }
+
+    public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
+        return r -> r.bindFailure(binding);
     }
 
     public static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> bindAsync(Function<S, CompletableFuture<Result<S2, F>>> binding) {
@@ -79,13 +76,6 @@ public final class Operator {
     public static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> bindFailureAsync(Function<F, CompletableFuture<Result<S, F2>>> binding) {
         return r -> r.either(
                 e -> CompletableFuture.completedFuture(Result.success(e)),
-                binding
-        );
-    }
-
-    public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
-        return r -> r.either(
-                Result::success,
                 binding
         );
     }

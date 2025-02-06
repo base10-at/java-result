@@ -15,8 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static at.base10.result.Result.Failure;
-
 import static at.base10.result.Operator.allMatch;
 import static at.base10.result.Operator.anyMatch;
 import static at.base10.result.Operator.bind;
@@ -35,10 +33,17 @@ import static at.base10.result.Operator.then;
 import static at.base10.result.Operator.toList;
 import static at.base10.result.Operator.toOptional;
 import static at.base10.result.Operator.toStream;
+import static at.base10.result.Result.Failure;
 import static at.base10.result.Result.Success;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResultTest {
 
@@ -78,8 +83,8 @@ class ResultTest {
 
     @Test
     void test_isSuccessFN() {
-        assertTrue(success(42).thenApply(isSuccess()));
-        assertFalse(success(42).thenApply(isFailure()));
+        assertTrue(success(42).then(isSuccess()));
+        assertFalse(success(42).then(isFailure()));
     }
 
     @Test
@@ -114,8 +119,8 @@ class ResultTest {
 
     @Test
     void test_isFailureFN() {
-        assertTrue(failure(42).thenApply(isFailure()));
-        assertFalse(failure(42).thenApply(isSuccess()));
+        assertTrue(failure(42).then(isFailure()));
+        assertFalse(failure(42).then(isSuccess()));
     }
 
     @Test
@@ -125,7 +130,7 @@ class ResultTest {
 
     @Test
     void test_flip_defaultsTo() {
-        assertSuccessEquals(42, failure(42).thenApply(flip()));
+        assertSuccessEquals(42, failure(42).then(flip()));
     }
 
 
@@ -133,14 +138,14 @@ class ResultTest {
     void test_map() {
         assertSuccessEquals("421",
                 success(42)
-                        .thenApply(map(x -> x + "1"))
+                        .then(map(x -> x + "1"))
         );
     }
 
     @Test
     void test_map_if_Failure() {
         assertFailureEquals(42, failure(42)
-                .thenApply(map(x -> x + "1"))
+                .then(map(x -> x + "1"))
         );
     }
 
@@ -149,7 +154,7 @@ class ResultTest {
     void test_mapFailure() {
         assertFailureEquals("421",
                 failure(42)
-                        .thenApply(mapFailure(x -> x + "1"))
+                        .then(mapFailure(x -> x + "1"))
 
         );
     }
@@ -157,87 +162,87 @@ class ResultTest {
 
     @Test
     void test_mapFailure_if_success() {
-        var result = success(42).thenApply(mapFailure(x -> x + "1"));
+        var result = success(42).then(mapFailure(x -> x + "1"));
         assertSuccessEquals(42, result);
     }
 
 
     @Test
     void test_bind() {
-        var result = Result.<Integer, Integer>success(42).thenApply(bind(x -> success(x + "1")));
+        var result = Result.<Integer, Integer>success(42).then(bind(x -> success(x + "1")));
         assertSuccessEquals("421", result);
     }
 
     @Test
     void test_bind_if_Failure() {
-        var result = failure(42).thenApply(bind(x -> success(x + "1")));
+        var result = failure(42).then(bind(x -> success(x + "1")));
         assertFailureEquals(42, result);
     }
 
     @Test
     void test_bindFailure() {
-        var result = Result.<String, Integer>failure(42).thenApply(bindFailure(x -> success(x + "1")));
+        var result = Result.<String, Integer>failure(42).then(bindFailure(x -> success(x + "1")));
         assertSuccessEquals("421", result);
     }
 
     @Test
     void test_bindFailure_if_success() {
         var input = Result.<Integer, Integer>success(42);
-        var result = input.thenApply(bindFailure(x -> success(x + 1)));
+        var result = input.then(bindFailure(x -> success(x + 1)));
         assertSuccessEquals(42, result);
     }
 
     @Test
     void test_anyMatch() {
-        assertFalse(Result.<Integer, Integer>failure(42).thenApply(anyMatch(x -> x == 42)));
-        assertFalse(Result.<Integer, Integer>failure(42).thenApply(anyMatch(x -> x == 43)));
-        assertFalse(Result.<Integer, Integer>success(42).thenApply(anyMatch(x -> x == 43)));
-        assertTrue(Result.<Integer, Integer>success(42).thenApply(anyMatch(x -> x == 42)));
+        assertFalse(Result.<Integer, Integer>failure(42).then(anyMatch(x -> x == 42)));
+        assertFalse(Result.<Integer, Integer>failure(42).then(anyMatch(x -> x == 43)));
+        assertFalse(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 43)));
+        assertTrue(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 42)));
     }
 
     @Test
     void test_allMatch() {
-        assertTrue(Result.<Integer, Integer>failure(42).thenApply(allMatch(x -> x == 42)));
-        assertTrue(Result.<Integer, Integer>failure(42).thenApply(allMatch(x -> x == 43)));
-        assertFalse(Result.<Integer, Integer>success(42).thenApply(allMatch(x -> x == 43)));
-        assertTrue(Result.<Integer, Integer>success(42).thenApply(allMatch(x -> x == 42)));
+        assertTrue(Result.<Integer, Integer>failure(42).then(allMatch(x -> x == 42)));
+        assertTrue(Result.<Integer, Integer>failure(42).then(allMatch(x -> x == 43)));
+        assertFalse(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 43)));
+        assertTrue(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 42)));
     }
 
     @Test
     void test_toList() {
-        assertEquals(List.of(), Result.<Integer, Integer>failure(42).thenApply(toList()));
-        assertEquals(List.of(42), Result.<Integer, Integer>success(42).thenApply(toList()));
+        assertEquals(List.of(), Result.<Integer, Integer>failure(42).then(toList()));
+        assertEquals(List.of(42), Result.<Integer, Integer>success(42).then(toList()));
     }
 
     @Test
     void test_toStream() {
-        assertEquals(List.of(), Result.<Integer, Integer>failure(42).thenApply(toStream()).toList());
-        assertEquals(List.of(42), Result.<Integer, Integer>success(42).thenApply(toStream()).toList());
+        assertEquals(List.of(), Result.<Integer, Integer>failure(42).then(toStream()).toList());
+        assertEquals(List.of(42), Result.<Integer, Integer>success(42).then(toStream()).toList());
     }
 
     @Test
     void test_toOptional() {
-        assertEquals(Optional.empty(), Result.<Integer, Integer>failure(42).thenApply(toOptional()));
-        assertEquals(Optional.of(42), Result.<Integer, Integer>success(42).thenApply(toOptional()));
+        assertEquals(Optional.empty(), Result.<Integer, Integer>failure(42).then(toOptional()));
+        assertEquals(Optional.of(42), Result.<Integer, Integer>success(42).then(toOptional()));
     }
 
     @Test
     void test_defaultsToValue() {
-        assertEquals(43, Result.<Integer, Integer>failure(42).thenApply(defaultsTo(43)));
-        assertEquals(42, Result.<Integer, Integer>success(42).thenApply(defaultsTo(43)));
+        assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsTo(43)));
+        assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsTo(43)));
     }
 
 
     @Test
     void test_defaultsToSupplier() {
-        assertEquals(43, Result.<Integer, Integer>failure(42).thenApply(defaultsTo(() -> 43)));
-        assertEquals(42, Result.<Integer, Integer>success(42).thenApply(defaultsTo(() -> 43)));
+        assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsTo(() -> 43)));
+        assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsTo(() -> 43)));
     }
 
     @Test
     void test_count() {
-        assertEquals(0, Result.<Integer, Integer>failure(42).thenApply(count()));
-        assertEquals(1, Result.<Integer, Integer>success(42).thenApply(count()));
+        assertEquals(0, Result.<Integer, Integer>failure(42).then(count()));
+        assertEquals(1, Result.<Integer, Integer>success(42).then(count()));
     }
 
     @Test
@@ -246,7 +251,7 @@ class ResultTest {
         AtomicInteger err = new AtomicInteger(0);
         assertSuccessEquals(42,
                 Result.<Integer, Integer>success(42)
-                        .thenApply(peek(
+                        .then(peek(
                                 val::set,
                                 err::set
                         ))
@@ -261,7 +266,7 @@ class ResultTest {
         AtomicInteger err = new AtomicInteger(0);
         assertFailureEquals(42,
                 Result.<Integer, Integer>failure(42)
-                        .thenApply(then(peek(
+                        .then(then(peek(
                                 val::set,
                                 err::set
                         )))
@@ -368,11 +373,11 @@ class ResultTest {
         @Test
         void test_read_and_process_file() {
             var x = Result.<String, String>success("test-files/numbers.txt")
-                    .thenApply(bind(this::getFile))
-                    .thenApply(bind(this::getFileLines))
-                    .thenApply(map(this::parseInts))
-                    .thenApply(map(s -> s.mapToInt(Integer::intValue).sum()))
-                    .thenApply(peek(s -> {
+                    .then(bind(this::getFile))
+                    .then(bind(this::getFileLines))
+                    .then(map(this::parseInts))
+                    .then(map(s -> s.mapToInt(Integer::intValue).sum()))
+                    .then(peek(s -> {
                     }, System.out::println));
 
             switch (x) {
@@ -381,7 +386,7 @@ class ResultTest {
                 default -> System.out.println("FAIL");
             }
 
-            assertEquals(128, x.thenApply(defaultsTo(-1)));
+            assertEquals(128, x.then(defaultsTo(-1)));
 
         }
 
@@ -390,7 +395,7 @@ class ResultTest {
         void test_delay_1() {
             assertSuccessEquals(42,
                     Result.<Integer, String>success(21)
-                            .thenApply(bind(delayWithTryCatch(32)))
+                            .then(bind(delayWithTryCatch(2)))
             );
         }
 
@@ -399,7 +404,7 @@ class ResultTest {
 
             assertSuccessEquals(42,
                     Result.<Integer, String>success(21)
-                            .thenApply(bind(x -> promiseResultInt(100, x, true).join()))
+                            .then(bind(x -> promiseResultInt(2, x, true).join()))
             );
         }
 
@@ -408,7 +413,7 @@ class ResultTest {
 
             assertSuccessEquals(42,
                     Result.<Integer, String>success(22)
-                            .thenApply(bindAsync(x -> promiseResultInt(100, x, true)))
+                            .then(bindAsync(x -> promiseResultInt(2, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -419,7 +424,7 @@ class ResultTest {
 
             assertFailureEquals("INIT",
                     Result.<Integer, String>failure("INIT")
-                            .thenApply(bindAsync(x -> promiseResultInt(100, x, true)))
+                            .then(bindAsync(x -> promiseResultInt(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -430,7 +435,7 @@ class ResultTest {
 
             assertFailureEquals("Failure",
                     Result.<Integer, String>success(22)
-                            .thenApply(bindAsync(x -> promiseResultInt(100, x, false)))
+                            .then(bindAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -441,7 +446,7 @@ class ResultTest {
 
             assertFailureEquals("INIT",
                     Result.<Integer, String>failure("INIT")
-                            .thenApply(bindAsync(x -> promiseResultInt(100, x, false)))
+                            .then(bindAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -452,18 +457,38 @@ class ResultTest {
 
             assertSuccessEquals(20,
                     Result.<Integer, String>success(22)
-                            .thenApply(bindFailureAsync(x -> promiseResultString(100, x, true)))
+                            .then(bindFailureAsync(x -> promiseResultString(100, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
         }
 
+        @SuppressWarnings("ConstantValue")
         @Test
         void test_bindFailureAsync_to_success_if_Failure() {
 
+            Optional.of(4).flatMap(x -> x % 2 == 0 ? Optional.of(x) : Optional.empty());
+
+            assertEquals(
+                    Optional.of(4),
+                    Optional.of(4)
+                            .flatMap(x -> x % 2 == 0
+                                    ? Optional.of(x)
+                                    : Optional.empty()
+                            ));
+
+            assertEquals(
+                    Optional.empty(),
+                    Optional.of(3)
+                            .flatMap(x -> x % 2 == 0
+                                    ? Optional.of(x)
+                                    : Optional.empty()
+                            ));
+
+
             assertSuccessEquals(42,
                     Result.<Integer, Integer>failure(22)
-                            .thenApply(bindFailureAsync(x -> promiseResultInt(100, x, true)))
+                            .then(bindFailureAsync(x -> promiseResultInt(2, x, true)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -474,7 +499,7 @@ class ResultTest {
 
             assertSuccessEquals(20,
                     Result.<Integer, String>success(22)
-                            .thenApply(bindFailureAsync(x -> promiseResultString(100, x, false)))
+                            .then(bindFailureAsync(x -> promiseResultString(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -486,7 +511,7 @@ class ResultTest {
 
             assertFailureEquals("Failure",
                     Result.<Integer, Integer>failure(22)
-                            .thenApply(bindFailureAsync(x -> promiseResultInt(100, x, false)))
+                            .then(bindFailureAsync(x -> promiseResultInt(100, x, false)))
                             .thenApply(map(x -> x - 2))
                             .join()
             );
@@ -611,11 +636,32 @@ class ResultTest {
                     failure("'X' is not a number")
             );
             assertEquals(
-                    Applicative.sequenceStream(stream).thenApply(mapFailure(Stream::toList)),
+                    Applicative.sequenceStream(stream).then(mapFailure(Stream::toList)),
                     failure(List.of("'X' is not a number"))
             );
         }
 
+        @Test
+        void test_SingleFailureOptional_Applicative() {
+            Optional<Result<Integer, String>> optional = Optional.of(
+                    failure("'X' is not a number")
+            );
+            assertEquals(
+                    Applicative.sequenceOptional(optional),
+                    failure(Optional.of("'X' is not a number"))
+            );
+        }
+
+        @Test
+        void test_SingleSuccessOptional_Monadic() {
+            Optional<Result<Integer, String>> optional = Optional.of(
+                    success(1)
+            );
+            assertEquals(
+                    Applicative.sequenceOptional(optional),
+                    success(Optional.of(1))
+            );
+        }
 
     }
 
@@ -732,8 +778,40 @@ class ResultTest {
             Stream<Result<Integer, String>> stream = Stream.of(
                     failure("'X' is not a number")
             );
-            assertEquals(Applicative.sequenceStream(stream).thenApply(mapFailure(Stream::toList)), failure(List.of(
+            assertEquals(Applicative.sequenceStream(stream).then(mapFailure(Stream::toList)), failure(List.of(
                     "'X' is not a number"))
+            );
+        }
+
+
+        @Test
+        void test_FailureOptional_Monadic() {
+            Optional<String> optional = Optional.of(
+                    "X"
+            );
+            assertEquals(
+                    Applicative.traverseOptional(ResultTest::tryParseInt).apply(optional),
+                    failure(Optional.of("'X' is not a number"))
+            );
+        }
+
+        @Test
+        void test_SuccessOptional_Monadic() {
+            Optional<String> optional = Optional.of(
+                    "1"
+            );
+            assertEquals(
+                    Applicative.traverseOptional(ResultTest::tryParseInt).apply(optional),
+                    success(Optional.of(1))
+            );
+        }
+
+        @Test
+        void test_EmptyOptional_Monadic() {
+            Optional<String> optional = Optional.empty();
+            assertEquals(
+                    Applicative.traverseOptional(ResultTest::tryParseInt).apply(optional),
+                    success(Optional.empty())
             );
         }
 
@@ -865,6 +943,7 @@ class ResultTest {
                     failure("'X' is not a number")
             );
         }
+
 
         @Test
         void test_SingleSuccessOptional_Monadic() {
@@ -999,7 +1078,7 @@ class ResultTest {
         void test_EmptyStream_Monadic() {
             Stream<String> stream = Stream.of();
             assertEquals(
-                    Monadic.traverseStream(ResultTest::tryParseInt).apply(stream).thenApply(map(Stream::toList)),
+                    Monadic.traverseStream(ResultTest::tryParseInt).apply(stream).then(map(Stream::toList)),
                     success(List.of())
             );
         }
@@ -1010,7 +1089,7 @@ class ResultTest {
                     "1"
             );
             assertEquals(
-                    Monadic.traverseStream(ResultTest::tryParseInt).apply(stream).thenApply(map(Stream::toList)),
+                    Monadic.traverseStream(ResultTest::tryParseInt).apply(stream).then(map(Stream::toList)),
                     success(List.of(1))
             );
         }

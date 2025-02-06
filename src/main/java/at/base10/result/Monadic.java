@@ -12,15 +12,15 @@ public final class Monadic {
     private Monadic() {
     }
 
-
     public static <V, S, F> Function<Optional<V>, Result<Optional<S>, F>> traverseOptional(Function<V, Result<S, F>> mapping) {
         return optional -> sequenceOptional(optional.map(mapping));
     }
 
     public static <V, S, F> Function<List<V>, Result<List<S>, F>> traverseList(Function<V, Result<S, F>> mapping) {
-        return list -> traverseStream(mapping)
+        return list ->
+                traverseStream(mapping)
                 .apply(list.stream())
-                .thenApply(map(Stream::toList));
+                .map(Stream::toList);
     }
 
 
@@ -29,6 +29,7 @@ public final class Monadic {
     }
 
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <S, F> Result<Optional<S>, F> sequenceOptional(Optional<Result<S, F>> optional) {
         return optional
                 .map(map(Optional::of, Function.identity()))
@@ -36,7 +37,7 @@ public final class Monadic {
     }
 
     public static <S, F> Result<List<S>, F> sequenceList(List<Result<S, F>> list) {
-        return sequenceStream(list.stream()).thenApply(map(Stream::toList));
+        return sequenceStream(list.stream()).then(map(Stream::toList));
     }
 
 

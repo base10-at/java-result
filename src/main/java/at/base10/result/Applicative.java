@@ -1,6 +1,7 @@
 package at.base10.result;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -11,10 +12,14 @@ public final class Applicative {
     private Applicative() {
     }
 
+    public static <V, S, F> Function<Optional<V>, Result<Optional<S>, Optional<F>>> traverseOptional(Function<V, Result<S, F>> mapping) {
+        return optional -> sequenceOptional(optional.map(mapping));
+    }
+
     public static <V, S, F> Function<List<V>, Result<List<S>, List<F>>> traverseList(Function<V, Result<S, F>> mapping) {
         return list -> traverseStream(mapping)
                 .apply(list.stream())
-                .thenApply(map(Stream::toList, Stream::toList));
+                .then(map(Stream::toList, Stream::toList));
     }
 
     public static <V, S, F> Function<Stream<V>, Result<Stream<S>, Stream<F>>> traverseStream(Function<V, Result<S, F>> mapping) {
@@ -24,9 +29,16 @@ public final class Applicative {
                 .reduce(Result.success(Stream.of()), Applicative::reducer);
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public static <S, F> Result<Optional<S>, Optional<F>> sequenceOptional(Optional<Result<S, F>> optional) {
+        return optional
+                .map(map(Optional::of, Optional::of))
+                .orElseGet(() -> Result.success(Optional.empty()));
+    }
+
     public static <S, F> Result<List<S>, List<F>> sequenceList(List<Result<S, F>> list) {
         return sequenceStream(list.stream())
-                .thenApply(map(Stream::toList, Stream::toList));
+                .then(map(Stream::toList, Stream::toList));
     }
 
     public static <S, F> Result<Stream<S>, Stream<F>> sequenceStream(Stream<Result<S, F>> stream) {
