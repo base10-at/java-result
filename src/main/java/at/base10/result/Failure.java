@@ -32,10 +32,7 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> map(
-            Function<S, S2> mapper,
-            Function<F, F2> errMapper
-    ) {
+    public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper) {
         return new Failure<>(errMapper.apply(failure));
     }
 
@@ -62,9 +59,7 @@ final class Failure<S, F> extends Result<S, F> {
 
     @Override
     public String toString() {
-        return "Failure{" +
-                "failure=" + failure +
-                '}';
+        return "Failure{failure=" + failure + '}';
     }
 
     @Override

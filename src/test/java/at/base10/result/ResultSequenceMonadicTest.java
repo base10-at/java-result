@@ -1,6 +1,5 @@
 package at.base10.result;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Nested
+
 public class ResultSequenceMonadicTest {
 
     @Test

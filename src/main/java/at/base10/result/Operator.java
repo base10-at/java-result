@@ -62,6 +62,13 @@ public final class Operator {
         return r -> r.bind(binding);
     }
 
+    public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bind(
+            Function<S, Result<S2, F2>> binding,
+            Function<F, Result<S2, F2>> bindingFailure
+    ) {
+        return r -> r.bind(binding, bindingFailure);
+    }
+
     public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
         return r -> r.bindFailure(binding);
     }
@@ -85,10 +92,7 @@ public final class Operator {
     }
 
     public static <S, F> Function<Result<S, F>, Boolean> anyMatch(Predicate<S> predicate) {
-        return r -> r.either(
-                predicate::test,
-                toConst(false)
-        );
+        return r -> r.either(predicate::test, toConst(false));
     }
 
     public static <S, F> Function<Result<S, F>, Boolean> allMatch(Predicate<S> predicate) {

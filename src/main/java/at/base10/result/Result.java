@@ -28,6 +28,11 @@ public abstract sealed class Result<S, F> permits Success, Failure {
 
     abstract public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
 
+     public <S2, F2> Result<S2, F2> bind(
+            Function<S, Result<S2, F2>> binding,
+            Function<F, Result<S2, F2>> bindingFailure
+    ){return either(binding,bindingFailure);}
+
     abstract public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
 
     abstract public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);

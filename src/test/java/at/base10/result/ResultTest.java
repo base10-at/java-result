@@ -131,6 +131,21 @@ class ResultTest {
     }
 
     @Test
+    void test_bind_either() {
+
+        assertSuccessEquals(43, Result.<Integer, Integer>success(42).then(
+                bind(
+                        x -> success(x + 1),
+                        x -> failure(x - 1)
+                )));
+        assertFailureEquals(41, Result.<Integer, Integer>failure(42).then(
+                bind(
+                        x -> success(x + 1),
+                        x -> failure(x - 1)
+                )));
+    }
+
+    @Test
     void test_bindFailure() {
         var result = Result.<String, Integer>failure(42).then(bindFailure(x -> success(x + "1")));
         assertSuccessEquals("421", result);

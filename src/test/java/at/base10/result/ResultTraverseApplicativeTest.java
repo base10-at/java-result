@@ -1,6 +1,5 @@
 package at.base10.result;
 
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Nested
 public class ResultTraverseApplicativeTest {
 
     @Test
@@ -61,6 +59,7 @@ public class ResultTraverseApplicativeTest {
         )));
     }
 
+
     @Test
     void test_MultipleFailure_Applicative() {
 
@@ -70,10 +69,14 @@ public class ResultTraverseApplicativeTest {
                 "3",
                 "Y"
         );
-        assertEquals(Applicative.traverseList(TestHelpers::tryParseInt).apply(list), failure(List.of(
-                "'X' is not a number",
-                "'Y' is not a number"
-        )));
+        assertEquals(
+                Applicative
+                        .traverseList(TestHelpers::tryParseInt)
+                        .apply(list),
+                failure(List.of(
+                        "'X' is not a number",
+                        "'Y' is not a number"
+                )));
     }
 
     @Test
