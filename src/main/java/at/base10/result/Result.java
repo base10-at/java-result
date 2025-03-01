@@ -7,47 +7,9 @@ import java.util.function.Supplier;
 
 public abstract sealed class Result<S, F> permits Success, Failure {
 
-    public abstract boolean isSuccess();
-
-    protected abstract S getValue();
-
-    protected abstract F getFailure();
-
-
-    public <S2> S2 then(Function<Result<S, F>, S2> fn) {
-        return fn.apply(this);
-    }
-
-
-    abstract public <S2, F2> Result<S2, F2> map(
-            Function<S, S2> mapper,
-            Function<F, F2> errMapper
-    );
-
-    abstract public <S2> Result<S2, F> map(Function<S, S2> mapper);
-
-    abstract public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
-
-     public <S2, F2> Result<S2, F2> bind(
-            Function<S, Result<S2, F2>> binding,
-            Function<F, Result<S2, F2>> bindingFailure
-    ){return either(binding,bindingFailure);}
-
-    abstract public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
-
-    abstract public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);
-
-
-    public abstract <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn);
-
-    public boolean isFailure() {
-        return !isSuccess();
-    }
-
     public static <S, F> Result<S, F> success(S value) {
         return new Success<>(value);
     }
-
 
     public static <S, F> Result<S, F> failure(F Failure) {
         return new Failure<>(Failure);
@@ -71,5 +33,32 @@ public abstract sealed class Result<S, F> permits Success, Failure {
         return fromPredicate(value, predicate, () -> null);
     }
 
+    public abstract boolean isSuccess();
+
+    protected abstract S getValue();
+
+    protected abstract F getFailure();
+
+    public <S2> S2 then(Function<Result<S, F>, S2> fn) {
+        return fn.apply(this);
+    }
+
+    abstract public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper);
+
+    abstract public <S2> Result<S2, F> map(Function<S, S2> mapper);
+
+    abstract public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
+
+    abstract public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure);
+
+    abstract public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
+
+    abstract public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);
+
+    public abstract <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn);
+
+    public boolean isFailure() {
+        return !isSuccess();
+    }
 
 }

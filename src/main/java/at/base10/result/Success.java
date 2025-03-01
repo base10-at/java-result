@@ -32,10 +32,7 @@ final class Success<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> map(
-            Function<S, S2> mapper,
-            Function<F, F2> errMapper
-    ) {
+    public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper) {
         return new Success<>(mapper.apply(value));
     }
 
@@ -46,7 +43,13 @@ final class Success<S, F> extends Result<S, F> {
 
     @Override
     public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper) {
-        return new Success<>(value);
+        //noinspection unchecked
+        return (Result<S, F2>) this;
+    }
+
+    @Override
+    public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+        return binding.apply(value);
     }
 
     @Override
@@ -56,26 +59,23 @@ final class Success<S, F> extends Result<S, F> {
 
     @Override
     public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding) {
-        return new Success<>(value);
+        //noinspection unchecked
+        return (Result<S, F2>) this;
     }
 
     @Override
     public String toString() {
-        return "Success{" +
-                "value=" + value +
-                '}';
+        return "Success{value=%s}".formatted(value);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-
-        at.base10.result.Success<?, ?> success = (at.base10.result.Success<?, ?>) o;
-        return value.equals(success.value);
+        return o != null && getClass() == o.getClass() && value.equals(((Success<?, ?>) o).value);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode() + value.hashCode();
     }
+
 }

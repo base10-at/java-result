@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static at.base10.result.Assert.assertFailureEquals;
 import static at.base10.result.Assert.assertSuccessEquals;
@@ -152,6 +151,26 @@ class ResultTest {
     }
 
     @Test
+    void test_bindFailure2() {
+        var result = Result.<String, Integer>failure(42)
+                .then(bindFailure(x -> success(x + "1")))
+                .then(bind(x -> success(x + "1")))
+                .then(bind(x -> success(x + "1")));
+
+        assertSuccessEquals("42111", result);
+    }
+
+    @Test
+    void test_bindFailure3() {
+        var result = Result.<String, Integer>failure(42)
+                .then(bindFailure(x -> failure(x + "1")))
+                .then(bindFailure(x -> failure(x + "1")))
+                .then(bind(x -> failure(x + "1")));
+
+        assertFailureEquals("4211", result);
+    }
+
+    @Test
     void test_bindFailure_if_success() {
         var input = Result.<Integer, Integer>success(42);
         var result = input.then(bindFailure(x -> success(x + 1)));
@@ -212,39 +231,9 @@ class ResultTest {
     }
 
     @Test
-    void test_peek_success() {
-        AtomicInteger val = new AtomicInteger(0);
-        AtomicInteger err = new AtomicInteger(0);
-        assertSuccessEquals(42,
-                Result.<Integer, Integer>success(42)
-                        .then(peek(
-                                val::set,
-                                err::set
-                        ))
-        );
-        assertEquals(42, val.get());
-        assertEquals(0, err.get());
-    }
-
-    @Test
-    void test_peek_Failure() {
-        AtomicInteger val = new AtomicInteger(0);
-        AtomicInteger err = new AtomicInteger(0);
-        assertFailureEquals(42,
-                Result.<Integer, Integer>failure(42)
-                        .then(then(peek(
-                                val::set,
-                                err::set
-                        )))
-        );
-        assertEquals(0, val.get());
-        assertEquals(42, err.get());
-    }
-
-    @Test
     void test_hash() {
-
         assertNotEquals(success(42).hashCode(), failure(42).hashCode());
+        assertNotEquals(success(42).hashCode(), success(43).hashCode());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package at.base10.result;
 
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,4 +25,17 @@ public class Assert {
         assertThrows(NoSuchElementException.class, result::getValue, "No value present");
     }
 
+
+    public static <E, F,G,H> void assertEqualStreamSuccess(Result<Stream<E>, F> result1, Result<Stream<G>, H> result2) {
+        assertEquals(
+                result1.map(Stream::toList),
+                result2.map(Stream::toList)
+        );
+    }
+    public static <E, F,G,H> void assertEqualStreamFailure(Result<E, Stream<F>> result1, Result<G, Stream<H>> result2) {
+        assertEquals(
+                result1.mapFailure(Stream::toList),
+                result2.mapFailure(Stream::toList)
+        );
+    }
 }

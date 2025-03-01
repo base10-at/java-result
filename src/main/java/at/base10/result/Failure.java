@@ -36,10 +36,10 @@ final class Failure<S, F> extends Result<S, F> {
         return new Failure<>(errMapper.apply(failure));
     }
 
-
     @Override
     public <S2> Result<S2, F> map(Function<S, S2> mapper) {
-        return new Failure<>(failure);
+        //noinspection unchecked
+        return (Result<S2, F>) this;
     }
 
     @Override
@@ -48,8 +48,14 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
+    public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+        return bindingFailure.apply(failure);
+    }
+
+    @Override
     public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding) {
-        return new Failure<>(failure);
+        //noinspection unchecked
+        return (Result<S2, F>) this;
     }
 
     @Override
@@ -59,19 +65,17 @@ final class Failure<S, F> extends Result<S, F> {
 
     @Override
     public String toString() {
-        return "Failure{failure=" + failure + '}';
+        return "Failure{failure=%s}".formatted(failure);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-
-        at.base10.result.Failure<?, ?> failure1 = (at.base10.result.Failure<?, ?>) o;
-        return failure.equals(failure1.failure);
+        return o != null && getClass() == o.getClass() && failure.equals(((Failure<?, ?>) o).failure);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode() + failure.hashCode();
     }
+
 }

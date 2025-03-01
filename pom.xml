@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.base10</groupId>
-    <artifactId>rop-orient-express</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>rail-orient-express</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -21,7 +21,6 @@
             <version>5.10.0</version> <!-- can be omitted when using the BOM -->
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -31,9 +30,6 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
-                    <compilerArgs>
-                        --enable-preview
-                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

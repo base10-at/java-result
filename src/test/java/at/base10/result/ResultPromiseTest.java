@@ -48,7 +48,7 @@ public class ResultPromiseTest {
         return p;
     }
 
-    CompletableFuture<Result<Integer, String>> promiseResultString(int ms, String x, boolean isSuccess) {
+    CompletableFuture<Result<Integer, String>> promiseResultString(int ms, boolean isSuccess) {
         var p = new CompletableFuture<Result<Integer, String>>();
         CompletableFuture.runAsync(() -> {
             if (isSuccess) {
@@ -109,15 +109,7 @@ public class ResultPromiseTest {
                 .then(map(s -> s.mapToInt(Integer::intValue).sum()))
                 .then(peek(s -> {
                 }, System.out::println));
-
-        switch (x) {
-            case Success<Integer, String> s -> System.out.println(s.getValue());
-            case Failure<Integer, String> f -> System.err.println(f);
-            default -> System.out.println("FAIL");
-        }
-
         assertEquals(128, x.then(defaultsTo(-1)));
-
     }
 
 
@@ -187,7 +179,7 @@ public class ResultPromiseTest {
 
         assertSuccessEquals(20,
                 Result.<Integer, String>success(22)
-                        .then(bindFailureAsync(x -> promiseResultString(100, x, true)))
+                        .then(bindFailureAsync(x -> promiseResultString(100, true)))
                         .thenApply(map(x -> x - 2))
                         .join()
         );
@@ -229,7 +221,7 @@ public class ResultPromiseTest {
 
         assertSuccessEquals(20,
                 Result.<Integer, String>success(22)
-                        .then(bindFailureAsync(x -> promiseResultString(100, x, false)))
+                        .then(bindFailureAsync(x -> promiseResultString(100, false)))
                         .thenApply(map(x -> x - 2))
                         .join()
         );
