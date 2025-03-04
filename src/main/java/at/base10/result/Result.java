@@ -33,7 +33,19 @@ public abstract sealed class Result<S, F> permits Success, Failure {
         return fromPredicate(value, predicate, () -> null);
     }
 
+    public static <S, F> Result<S, F> fromBoolean(Boolean value, Supplier<S> successFn, Supplier<F> failureFn) {
+        return value ? success(successFn.get()) : failure(failureFn.get());
+    }
+
+    public static Result<Boolean, Boolean> fromBoolean(Boolean value) {
+        return value ? success(true) : failure(false);
+    }
+
     public abstract boolean isSuccess();
+
+    public boolean isFailure() {
+        return !isSuccess();
+    }
 
     protected abstract S getValue();
 
@@ -43,13 +55,13 @@ public abstract sealed class Result<S, F> permits Success, Failure {
         return fn.apply(this);
     }
 
-    abstract public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper);
+    abstract public <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper);
 
     abstract public <S2> Result<S2, F> map(Function<S, S2> mapper);
 
     abstract public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
 
-    abstract public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure);
+    abstract public <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure);
 
     abstract public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
 
@@ -57,8 +69,11 @@ public abstract sealed class Result<S, F> permits Success, Failure {
 
     public abstract <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn);
 
-    public boolean isFailure() {
-        return !isSuccess();
-    }
+    public abstract S orThrow();
+
+    public abstract <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E;
+
+    public abstract Optional<S> toOptional();
+
 
 }

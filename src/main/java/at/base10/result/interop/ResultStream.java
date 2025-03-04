@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static at.base10.result.Operator.map;
+import static at.base10.result.Operator.mapEither;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
 
@@ -47,7 +48,7 @@ public final class ResultStream {
     }
 
     private static <S, F> Function<Result<S, F>, Result<Stream<S>, Stream<F>>> mapEitherToStream() {
-        return map(Stream::of, Stream::of);
+        return mapEither(Stream::of, Stream::of);
     }
 
     private static <S, F> Function<Result<S, F>, Result<Stream<S>, F>> mapToStream() {

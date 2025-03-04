@@ -1,6 +1,7 @@
 package at.base10.result;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 
 final class Success<S, F> extends Result<S, F> {
@@ -32,7 +33,7 @@ final class Success<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper) {
+    public <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
         return new Success<>(mapper.apply(value));
     }
 
@@ -48,7 +49,7 @@ final class Success<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+    public <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
         return binding.apply(value);
     }
 
@@ -61,6 +62,21 @@ final class Success<S, F> extends Result<S, F> {
     public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding) {
         //noinspection unchecked
         return (Result<S, F2>) this;
+    }
+
+    @Override
+    public S orThrow() {
+        return value;
+    }
+
+    @Override
+    public <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) {
+        return value;
+    }
+
+    @Override
+    public Optional<S> toOptional() {
+        return Optional.of(value);
     }
 
     @Override

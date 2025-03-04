@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static at.base10.result.Operator.map;
+import static at.base10.result.Operator.mapEither;
 import static at.base10.result.Result.success;
 
 public final class ResultOptional {
@@ -20,7 +21,7 @@ public final class ResultOptional {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <S, F> Result<Optional<S>, Optional<F>> sequenceApplicative(Optional<Result<S, F>> optional) {
-        return optional.map(map(Optional::of, Optional::of)).orElseGet(ResultOptional::getSuccessOfEmpty);
+        return optional.map(mapEither(Optional::of, Optional::of)).orElseGet(ResultOptional::getSuccessOfEmpty);
     }
 
     public static <V, S, F> Function<Optional<V>, Result<Optional<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
@@ -29,7 +30,7 @@ public final class ResultOptional {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <S, F> Result<Optional<S>, F> sequenceMonadic(Optional<Result<S, F>> optional) {
-        return optional.map(map(Optional::of, Function.identity())).orElseGet(ResultOptional::getSuccessOfEmpty);
+        return optional.map(map(Optional::of)).orElseGet(ResultOptional::getSuccessOfEmpty);
     }
 
     private static <S, F> Result<Optional<S>, F> getSuccessOfEmpty() {

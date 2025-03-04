@@ -18,8 +18,8 @@ public final class Operator {
         return r -> r.either(Result::failure, Result::success);
     }
 
-    public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> map(Function<S, S2> mapper, Function<F, F2> errMapper) {
-        return r -> r.map(mapper, errMapper);
+    public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
+        return r -> r.mapEither(mapper, errMapper);
     }
 
     public static <S, S2, F> Function<Result<S, F>, Result<S2, F>> map(Function<S, S2> mapper) {
@@ -30,7 +30,7 @@ public final class Operator {
         return r -> r.mapFailure(mapper);
     }
 
-    public static <S, F> Function<Result<S, F>, Result<S, F>> peek(Consumer<S> success, Consumer<F> failure) {
+    public static <S, F> Function<Result<S, F>, Result<S, F>> peekEither(Consumer<S> success, Consumer<F> failure) {
         return r -> {
             r.either(ConsumerToVoidFunction(success), ConsumerToVoidFunction(failure));
             return r;
@@ -44,11 +44,27 @@ public final class Operator {
         };
     }
 
+    public static <S, F> Function<Result<S, F>, S> orThrow() {
+        return Result::orThrow;
+    }
+
+    public static <S, F, E extends RuntimeException> Function<Result<S, F>, S> orThrow(Function<F, E> exceptionFunction) {
+        return r -> r.orThrow(exceptionFunction);
+    }
+
+    public static <S, F> Function<Result<S, F>, Result<S, F>> ifSuccess(Consumer<S> success) {
+        return peek(success);
+    }
+
     public static <S, F> Function<Result<S, F>, Result<S, F>> peekFailure(Consumer<F> failure) {
         return r -> {
             r.either(f -> null, ConsumerToVoidFunction(failure));
             return r;
         };
+    }
+
+    public static <S, F> Function<Result<S, F>, Result<S, F>> ifFailure(Consumer<F> failure) {
+        return peekFailure(failure);
     }
 
     private static <T> Function<T, Void> ConsumerToVoidFunction(Consumer<T> consumer) {
@@ -62,8 +78,9 @@ public final class Operator {
         return r -> r.bind(binding);
     }
 
-    public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
-        return r -> r.bind(binding, bindingFailure);
+
+    public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+        return r -> r.bindEither(binding, bindingFailure);
     }
 
     public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
@@ -99,7 +116,7 @@ public final class Operator {
     }
 
     public static <S, F> Function<Result<S, F>, Optional<S>> toOptional() {
-        return r -> r.either(Optional::of, toConst(Optional.empty()));
+        return Result::toOptional;
     }
 
     public static <S, F> Function<Result<S, F>, S> defaultsTo(S defaultValue) {
@@ -121,5 +138,6 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Boolean> isFailure() {
         return Result::isFailure;
     }
+
 
 }

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static at.base10.result.Operator.map;
+import static at.base10.result.Operator.mapEither;
 
 public final class ResultList {
 
@@ -31,7 +32,7 @@ public final class ResultList {
     }
 
     private static <S, F> Function<Result<Stream<S>, Stream<F>>, Result<List<S>, List<F>>> mapEitherToList() {
-        return map(Stream::toList, Stream::toList);
+        return mapEither(Stream::toList, Stream::toList);
     }
 
     private static <S, F> Function<Result<Stream<S>, F>, Result<List<S>, F>> mapToList() {

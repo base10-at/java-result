@@ -1,6 +1,7 @@
 package at.base10.result;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 
 final class Failure<S, F> extends Result<S, F> {
@@ -32,7 +33,7 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> map(Function<S, S2> mapper, Function<F, F2> errMapper) {
+    public <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
         return new Failure<>(errMapper.apply(failure));
     }
 
@@ -48,7 +49,7 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> bind(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+    public <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
         return bindingFailure.apply(failure);
     }
 
@@ -59,8 +60,23 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
+    public S orThrow() {
+        throw new NoSuchElementException("No value present");
+    }
+
+    @Override
+    public <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E {
+        throw exceptionFunction.apply(failure);
+    }
+
+    @Override
     public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding) {
         return binding.apply(failure);
+    }
+
+    @Override
+    public Optional<S> toOptional() {
+        return Optional.empty();
     }
 
     @Override
