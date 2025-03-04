@@ -3,6 +3,7 @@ package at.base10.result;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static at.base10.result.Assert.assertFailureEquals;
@@ -133,12 +134,12 @@ class ResultTest {
     void test_bind_either() {
 
         assertSuccessEquals(43, Result.<Integer, Integer>success(42).then(
-                bind(
+                bindEither(
                         x -> success(x + 1),
                         x -> failure(x - 1)
                 )));
         assertFailureEquals(41, Result.<Integer, Integer>failure(42).then(
-                bind(
+                bindEither(
                         x -> success(x + 1),
                         x -> failure(x - 1)
                 )));
@@ -247,10 +248,50 @@ class ResultTest {
 
     @Test
     void testFromPredicate() {
-        assertSuccessEquals(42, Result.fromPredicate(42, x -> x < 43, () -> "Error"));
-        assertSuccessEquals(42, Result.fromPredicate(42, x -> x < 43, () -> null));
         assertSuccessEquals(42, Result.fromPredicate(42, x -> x < 43));
         assertFailureEquals(null, Result.fromPredicate(42, x -> x > 43));
+    }
+
+    @Test
+    void testFromPredicateWithSuppliers() {
+        assertSuccessEquals(42, Result.fromPredicate(42, x -> x < 43, () -> "Error"));
+        assertSuccessEquals(42, Result.fromPredicate(42, x -> x < 43, () -> null));
         assertFailureEquals("Error", Result.fromPredicate(42, x -> x > 43, () -> "Error"));
+    }
+
+    @Test
+    void testFromBoolean() {
+        assertSuccessEquals(true, Result.fromBoolean(true));
+        assertFailureEquals(false, Result.fromBoolean(false));
+    }
+
+    @Test
+    void testFromBooleanWithSuppliers() {
+        assertSuccessEquals(42, Result.fromBoolean(true, () -> 42, () -> "Error"));
+        assertFailureEquals("Error", Result.fromBoolean(false, () -> 42, () -> "Error"));
+    }
+
+    @Test
+    void testThrow() {
+        assertEquals(42, success(42).orThrow(f -> new IllegalArgumentException("foo")));
+        assertThrows(IllegalArgumentException.class, () -> failure(42).orThrow(f -> new IllegalArgumentException("foo")), "foo");
+    }
+
+    @Test
+    void testThrowOp() {
+        assertEquals(42, success(42).then(orThrow(f -> new IllegalArgumentException("foo"))));
+        assertThrows(IllegalArgumentException.class, () -> failure(42).then(orThrow(f -> new IllegalArgumentException("foo"))), "foo");
+    }
+
+    @Test
+    void testThrowDefault() {
+        assertEquals(42, success(42).orThrow());
+        assertThrows(NoSuchElementException.class, () -> failure(42).orThrow(), "No value present");
+    }
+
+    @Test
+    void testThrowDefaultOp() {
+        assertEquals(42, success(42).then(orThrow()));
+        assertThrows(NoSuchElementException.class, () -> failure(42).then(orThrow()), "No value present");
     }
 }

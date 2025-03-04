@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static at.base10.result.Assert.assertFailureEquals;
 import static at.base10.result.Assert.assertSuccessEquals;
-import static at.base10.result.Operator.peek;
-import static at.base10.result.Operator.peekFailure;
+import static at.base10.result.Operator.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Nested
 class ResultPeekTest {
@@ -19,7 +19,7 @@ class ResultPeekTest {
         AtomicInteger err = new AtomicInteger(0);
         assertSuccessEquals(42,
                 Result.<Integer, Integer>success(42)
-                        .then(peek(val::set, err::set))
+                        .then(peekEither(val::set, err::set))
         );
         assertEquals(42, val.get());
         assertEquals(0, err.get());
@@ -31,7 +31,7 @@ class ResultPeekTest {
         AtomicInteger err = new AtomicInteger(0);
         assertFailureEquals(42,
                 Result.<Integer, Integer>failure(42)
-                        .then(peek(val::set, err::set))
+                        .then(peekEither(val::set, err::set))
         );
         assertEquals(0, val.get());
         assertEquals(42, err.get());
@@ -50,12 +50,36 @@ class ResultPeekTest {
     }
 
     @Test
+    void test_ifSuccess_success() {
+        AtomicInteger val = new AtomicInteger(0);
+        AtomicInteger err = new AtomicInteger(0);
+        assertSuccessEquals(42,
+                Result.<Integer, Integer>success(42)
+                        .then(ifSuccess(val::set))
+        );
+        assertEquals(42, val.get());
+        assertEquals(0, err.get());
+    }
+
+    @Test
     void test_peekSuccess_Failure() {
         AtomicInteger val = new AtomicInteger(0);
         AtomicInteger err = new AtomicInteger(0);
         assertFailureEquals(42,
                 Result.<Integer, Integer>failure(42)
                         .then(peek(val::set))
+        );
+        assertEquals(0, val.get());
+        assertEquals(0, err.get());
+    }
+
+    @Test
+    void test_ifFailure_success() {
+        AtomicInteger val = new AtomicInteger(0);
+        AtomicInteger err = new AtomicInteger(0);
+        assertSuccessEquals(42,
+                Result.<Integer, Integer>success(42)
+                        .then(ifFailure(err::set))
         );
         assertEquals(0, val.get());
         assertEquals(0, err.get());
@@ -84,4 +108,25 @@ class ResultPeekTest {
         assertEquals(0, val.get());
         assertEquals(42, err.get());
     }
+
+
+    @Test
+    void test_orTrow_success() {
+        assertEquals(42,
+                Result.<Integer, Integer>success(42)
+                        .orThrow(f -> new IllegalArgumentException("e"))
+        );
+    }
+
+    @Test
+    void test_orTrow_failure() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> Result
+                        .failure(42)
+                        .orThrow(f -> new IllegalArgumentException("illegal:" + f)),
+                "illegal:42"
+        );
+    }
+
 }

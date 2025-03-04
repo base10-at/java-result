@@ -89,7 +89,7 @@ public class ResultPromiseTest {
         }
     }
 
-    private Result<Stream<String>, String> getFileLines(File file) {
+    private Result<Stream<String>, String> getLines(File file) {
         try (Stream<String> stream = Files.lines(file.toPath())) {
             return success(stream.toList().stream());
         } catch (IOException e) {
@@ -104,10 +104,10 @@ public class ResultPromiseTest {
     void test_read_and_process_file() {
         var x = Result.<String, String>success("test-files/numbers.txt")
                 .then(bind(this::getFile))
-                .then(bind(this::getFileLines))
+                .then(bind(this::getLines))
                 .then(map(this::parseInts))
                 .then(map(s -> s.mapToInt(Integer::intValue).sum()))
-                .then(peek(s -> {
+                .then(peekEither(s -> {
                 }, System.out::println));
         assertEquals(128, x.then(defaultsTo(-1)));
     }
