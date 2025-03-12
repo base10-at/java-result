@@ -147,7 +147,7 @@ class ResultTest {
 
     @Test
     void test_bindFailure() {
-        var result = Result.<String, Integer>failure(42).then(bindFailure(x -> success(x + "1")));
+        Result<String, Void> result = Result.<String, Integer>failure(42).then(bindFailure(x -> success(x + "1", Void.class)));
         assertSuccessEquals("421", result);
     }
 
@@ -163,10 +163,12 @@ class ResultTest {
 
     @Test
     void test_bindFailure3() {
-        var result = Result.<String, Integer>failure(42)
+
+        var result = Result.failure(42, String.class)
                 .then(bindFailure(x -> failure(x + "1")))
                 .then(bindFailure(x -> failure(x + "1")))
-                .then(bind(x -> failure(x + "1")));
+                .then(bind(x -> failure(x.trim() + 1, Void.class)))
+                .then(bind(x -> success(1)));
 
         assertFailureEquals("4211", result);
     }

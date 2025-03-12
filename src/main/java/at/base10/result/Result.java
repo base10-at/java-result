@@ -11,7 +11,17 @@ public abstract sealed class Result<S, F> permits Success, Failure {
         return new Success<>(value);
     }
 
+    @SuppressWarnings("unused")
+    public static <S, F> Result<S, F> success(S value, Class<F> failureType) {
+        return new Success<>(value);
+    }
+
     public static <S, F> Result<S, F> failure(F Failure) {
+        return new Failure<>(Failure);
+    }
+
+    @SuppressWarnings("unused")
+    public static <S, F> Result<S, F> failure(F Failure, Class<S> successType) {
         return new Failure<>(Failure);
     }
 

@@ -54,7 +54,7 @@ class ResultPeekTest {
         AtomicInteger val = new AtomicInteger(0);
         AtomicInteger err = new AtomicInteger(0);
         assertSuccessEquals(42,
-                Result.<Integer, Integer>success(42)
+                Result.success(42, Integer.class)
                         .then(ifSuccess(val::set))
         );
         assertEquals(42, val.get());
@@ -66,7 +66,7 @@ class ResultPeekTest {
         AtomicInteger val = new AtomicInteger(0);
         AtomicInteger err = new AtomicInteger(0);
         assertFailureEquals(42,
-                Result.<Integer, Integer>failure(42)
+                Result.failure(42, Integer.class)
                         .then(peek(val::set))
         );
         assertEquals(0, val.get());

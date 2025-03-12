@@ -53,8 +53,17 @@ handling of success and failure cases. This improves code clarity and maintainab
 ### Example 1: Basic Success and Failure (constructor)
 
 ```java
+// declare type
 Result<Integer, String> success = Result.success(42);
 Result<Integer, String> failure = Result.failure("Error occurred");
+
+// provide alternative type
+var success = Result.success(42, String.class);
+var failure = Result.failure("Error occurred", Integer.class);
+
+// use generics
+var success = Result.<Integer, String>success(42);
+var failure = Result.<Integer, String>failure("Error occurred");
 ```
 
 ### Example 2: Transforming Results (map)
