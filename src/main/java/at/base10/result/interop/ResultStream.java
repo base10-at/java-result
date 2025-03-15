@@ -15,18 +15,56 @@ public final class ResultStream {
     private ResultStream() {
     }
 
+    /**
+     * Applies a mapping function to each element in the stream and collects the results into a single {@code Result}.
+     * Uses an applicative approach, meaning all elements are processed independently, and failures are accumulated.
+     *
+     * @param <V>     The type of elements in the input stream.
+     * @param <S>     The success type of the result.
+     * @param <F>     The failure type of the result.
+     * @param mapping The function to apply to each element, producing a {@code Result<S, F>}.
+     * @return A function that transforms a stream of {@code V} into a {@code Result<Stream<S>, Stream<F>>}.
+     */
     public static <V, S, F> Function<Stream<V>, Result<Stream<S>, Stream<F>>> traverseApplicative(Function<V, Result<S, F>> mapping) {
         return s -> s.map(mapping.andThen(mapEitherToStream())).reduce(success(Stream.of()), ResultStream::applicativeReducer);
     }
 
+    /**
+     * Applies a mapping function to each element in the stream and collects the results into a single {@code Result}.
+     * Uses a monadic approach, meaning failures are short-circuited and the first failure encountered is returned.
+     *
+     * @param <V>     The type of elements in the input stream.
+     * @param <S>     The success type of the result.
+     * @param <F>     The failure type of the result.
+     * @param mapping The function to apply to each element, producing a {@code Result<S, F>}.
+     * @return A function that transforms a stream of {@code V} into a {@code Result<Stream<S>, F>}, stopping at the first failure.
+     */
     public static <V, S, F> Function<Stream<V>, Result<Stream<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
         return stream -> sequenceMonadic(stream.map(mapping));
     }
 
+    /**
+     * Converts a stream of {@code Result} objects into a single {@code Result} containing streams of success and failure values.
+     * Uses an applicative approach, meaning all elements are processed independently, and failures are accumulated.
+     *
+     * @param <S>    The success type of the result.
+     * @param <F>    The failure type of the result.
+     * @param stream The stream of {@code Result<S, F>} values.
+     * @return A {@code Result} containing a stream of success values if all succeed, or a stream of failures otherwise.
+     */
     public static <S, F> Result<Stream<S>, Stream<F>> sequenceApplicative(Stream<Result<S, F>> stream) {
         return stream.map(mapEitherToStream()).reduce(success(Stream.of()), ResultStream::applicativeReducer);
     }
 
+    /**
+     * Converts a stream of {@code Result} objects into a single {@code Result} containing a stream of success values.
+     * Uses a monadic approach, meaning failures are short-circuited and the first failure encountered is returned.
+     *
+     * @param <S>    The success type of the result.
+     * @param <F>    The failure type of the result.
+     * @param stream The stream of {@code Result<S, F>} values.
+     * @return A {@code Result} containing a stream of success values if all succeed, or the first encountered failure.
+     */
     public static <S, F> Result<Stream<S>, F> sequenceMonadic(Stream<Result<S, F>> stream) {
         return stream.map(mapToStream()).reduce(success(Stream.of()), ResultStream::monadicReducer);
     }
