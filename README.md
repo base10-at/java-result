@@ -1,4 +1,4 @@
-# ROP Orient Express - Result Utility Library
+# ROP - Result Utility Library
 
 ## Overview
 
@@ -85,7 +85,19 @@ Result<Integer, String> finalResult = divide(10, 2).bind(value -> divide(value, 
 
 ## Installation
 
-TBA
+### Maven:
+```xml
+<dependency>
+  <groupId>at.base10</groupId>
+  <artifactId>result</artifactId>
+  <version>1.0.0-alpha-1</version>
+</dependency>
+```
+
+### Gradle:
+```groovy
+implementation 'at.base10:result:1.0.0-alpha-1'
+```
 
 ## License
 
