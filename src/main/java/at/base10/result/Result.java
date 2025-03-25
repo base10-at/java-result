@@ -1,21 +1,50 @@
 package at.base10.result;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/**
+ * An interface representing the result of an operation that can either succeed or fail.
+ *
+ * <p>The {@code Result} interface is a generic container that encapsulates either a success ({@code S}) or a failure ({@code F}).
+ * It provides a functional approach to error handling, reducing the need for exceptions and making error propagation explicit.
+ *
+ * <p>This interface is sealed, meaning only the permitted subclasses {@link Success} and {@link Failure} can implement it.
+ *
+ * <p>Typical usage involves calling one of the factory methods such as {@link #success(Object)} or {@link #failure(Object)}
+ * to construct an instance and then processing it using various transformation and mapping methods.
+ *
+ * @param <S> the type representing a successful result
+ * @param <F> the type representing a failure result
+ *
+ * @see Success
+ * @see Failure
+ */
 public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a successful Result instance.
      *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
      * @param value The success value.
      * @return A Result representing success.
      */
     static <S, F> Result<S, F> success(S value) {
         return new Success<>(value);
     }
-
+    /**
+     * Creates a successful Result instance.
+     *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
+     * @param value The success value.
+     * @param failureType The failure type.
+     * @return A Result representing success.
+     */
     @SuppressWarnings("unused")
     static <S, F> Result<S, F> success(S value, Class<F> failureType) {
         return new Success<>(value);
@@ -24,6 +53,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a failure Result instance.
      *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
      * @param value The failure value.
      * @return A Result representing failure.
      */
@@ -31,14 +62,25 @@ public sealed interface Result<S, F> permits Success, Failure {
         return new Failure<>(value);
     }
 
+    /**
+     * Creates a failure Result instance.
+     *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
+     * @param failure The failure value.
+     * @param successType The success type.
+     * @return A Result representing failure.
+     */
     @SuppressWarnings("unused")
-    static <S, F> Result<S, F> failure(F Failure, Class<S> successType) {
-        return new Failure<>(Failure);
+    static <S, F> Result<S, F> failure(F failure, Class<S> successType) {
+        return new Failure<>(failure);
     }
 
     /**
      * Converts an Optional into a Result.
      *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
      * @param optional The optional value.
      * @param supplier The failure supplier if optional is empty.
      * @return A success Result if optional is present, otherwise a failure Result.
@@ -51,6 +93,7 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Converts an Optional into a Result.
      *
+     * @param <S> the type representing a successful result
      * @param optional The optional value.
      * @return A success Result if optional is present, otherwise a failure Result.
      */
@@ -62,6 +105,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a predicate test.
      *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
      * @param value     The value to test.
      * @param predicate The predicate function.
      * @param supplier  The failure supplier if predicate test fails.
@@ -74,6 +119,7 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a predicate test.
      *
+     * @param <S> the type representing a successful result
      * @param value     The value to test.
      * @param predicate The predicate function.
      * @return A success Result if predicate test passes, otherwise a failure Result.
@@ -85,6 +131,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a boolean condition.
      *
+     * @param <S> the type representing a successful result
+     * @param <F> the type representing a failure result
      * @param value     The boolean value.
      * @param successFn Supplier for success value.
      * @param failureFn Supplier for failure value.
@@ -120,8 +168,16 @@ public sealed interface Result<S, F> permits Success, Failure {
         return !isSuccess();
     }
 
+    /**
+     * @throws NoSuchElementException if is Failure
+     * @return S returns the value
+     */
     S value();
 
+    /**
+     * @throws NoSuchElementException if is Success
+     * @return S returns the failure value
+     */
     F failure();
 
     /**
@@ -155,13 +211,38 @@ public sealed interface Result<S, F> permits Success, Failure {
     <S2> Result<S2, F> map(Function<S, S2> mapper);
 
     /**
-     * Transforms the failure value using the provided mapping function.
+     * Consumes the failure value using the provided consumer function.
      *
      * @param <F2>   The type of the new failure value.
      * @param mapper Function to transform the failure value.
-     * @return A new Result with the transformed failure value.
+     * @return The original Result.
      */
     <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
+
+    /**
+     * Consumes both success and failure values using the provided consumer functions.
+     *
+     * @param consumer    Function to transform the success value.
+     * @param errConsumer Function to transform the failure value.
+     * @return The original Result.
+     */
+    Result<S, F> peekEither(Consumer<S> consumer, Consumer<F> errConsumer);
+
+    /**
+     * Consumes the success value using the provided consumer function.
+     *
+     * @param consumer Function to transform the success value.
+     * @return The original Result.
+     */
+    Result<S, F> peek(Consumer<S> consumer);
+
+    /**
+     * Transforms the failure value using the provided peekping function.
+     *
+     * @param consumer Function to transform the failure value.
+     * @return A new Result with the transformed failure value.
+     */
+    Result<S, F> peekFailure(Consumer<F> consumer);
 
     /**
      * Binds a function to both success and failure values, transforming the Result accordingly.
@@ -220,6 +301,9 @@ public sealed interface Result<S, F> permits Success, Failure {
      */
     <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E;
 
+    /**
+     * @return Optional an option of success type
+     */
     Optional<S> toOptional();
 
 
