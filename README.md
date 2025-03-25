@@ -1,5 +1,5 @@
 # ROP - Result Utility Library
-
+[![javadoc](https://javadoc.io/badge2/at.base10/result/javadoc.svg)](https://javadoc.io/doc/at.base10/result)
 ## Overview
 
 The **Result Utility Library** is a Java implementation of 
@@ -20,6 +20,9 @@ in a predictable and composable manner.
 Traditional exception handling in Java can be cumbersome and error-prone. 
 By using `Result<S, F>`, we avoid unchecked exceptions and enforce explicit 
 handling of success and failure cases. This improves code clarity and maintainability.
+
+## Documentation
+Full documentation can be found [here](https://javadoc.io/doc/at.base10/result).
 
 ## Features
 
@@ -90,13 +93,13 @@ Result<Integer, String> finalResult = divide(10, 2).bind(value -> divide(value, 
 <dependency>
   <groupId>at.base10</groupId>
   <artifactId>result</artifactId>
-  <version>1.0.0-alpha-1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
 ### Gradle:
 ```groovy
-implementation 'at.base10:result:1.0.0-alpha-1'
+implementation 'at.base10:result:1.0.2'
 ```
 
 ## License
