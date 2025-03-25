@@ -197,6 +197,34 @@ class ResultTest {
     }
 
     @Test
+    void test_equals() {
+        assertEquals(failure(42), failure(42));
+        assertNotEquals(failure(43), failure(42));
+        assertNotEquals(null, failure(43));
+
+        assertNotEquals(success(42), failure(42));
+
+        assertEquals(success(42), success(42));
+        assertNotEquals(success(43), success(42));
+        assertNotEquals(null, success(43));
+    }
+
+
+
+    @Test
+    void test_hashCode() {
+        assertEquals(1986982223, failure(42).hashCode());
+        assertEquals(failure(42).hashCode(), failure(42).hashCode());
+        assertNotEquals(failure(43).hashCode(), failure(42).hashCode());
+
+        assertNotEquals(success(42).hashCode(), failure(42).hashCode());
+
+        assertEquals(-736644618, success(42).hashCode());
+        assertEquals(success(42).hashCode(), success(42).hashCode());
+        assertNotEquals(success(43).hashCode(), success(42).hashCode());
+    }
+
+    @Test
     void test_toList() {
         assertEquals(List.of(), Result.<Integer, Integer>failure(42).then(toList()));
         assertEquals(List.of(42), Result.<Integer, Integer>success(42).then(toList()));

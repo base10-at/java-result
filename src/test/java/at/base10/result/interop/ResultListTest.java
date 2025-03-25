@@ -12,6 +12,7 @@ import static at.base10.result.Result.success;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ResultListTest {
+
     @Nested
     class TraverseApplicative {
         @Test

@@ -10,10 +10,20 @@ import static at.base10.result.Operator.mapEither;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
 
-public final class ResultStream {
-
-    private ResultStream() {
-    }
+/**
+ * A utility class providing functional operations on {@code Stream} values in the context of {@code Result}.
+ *
+ * <p>The {@code ResultStream} class offers methods to transform and sequence {@code Stream} values that contain
+ * {@code Result} instances, supporting both applicative and monadic traversal.
+ *
+ * <p>These utilities facilitate functional programming patterns for handling streams of computations
+ * that may succeed or fail, integrating seamlessly with the {@link Result} type.
+ *
+ * <p>All methods in this class are static, and the constructor is private to prevent instantiation.
+ *
+ * @see Result
+ */
+public sealed interface ResultStream permits None {
 
     /**
      * Applies a mapping function to each element in the stream and collects the results into a single {@code Result}.
@@ -25,7 +35,7 @@ public final class ResultStream {
      * @param mapping The function to apply to each element, producing a {@code Result<S, F>}.
      * @return A function that transforms a stream of {@code V} into a {@code Result<Stream<S>, Stream<F>>}.
      */
-    public static <V, S, F> Function<Stream<V>, Result<Stream<S>, Stream<F>>> traverseApplicative(Function<V, Result<S, F>> mapping) {
+    static <V, S, F> Function<Stream<V>, Result<Stream<S>, Stream<F>>> traverseApplicative(Function<V, Result<S, F>> mapping) {
         return s -> s.map(mapping.andThen(mapEitherToStream())).reduce(success(Stream.of()), ResultStream::applicativeReducer);
     }
 
@@ -39,7 +49,7 @@ public final class ResultStream {
      * @param mapping The function to apply to each element, producing a {@code Result<S, F>}.
      * @return A function that transforms a stream of {@code V} into a {@code Result<Stream<S>, F>}, stopping at the first failure.
      */
-    public static <V, S, F> Function<Stream<V>, Result<Stream<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
+    static <V, S, F> Function<Stream<V>, Result<Stream<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
         return stream -> sequenceMonadic(stream.map(mapping));
     }
 
@@ -52,7 +62,7 @@ public final class ResultStream {
      * @param stream The stream of {@code Result<S, F>} values.
      * @return A {@code Result} containing a stream of success values if all succeed, or a stream of failures otherwise.
      */
-    public static <S, F> Result<Stream<S>, Stream<F>> sequenceApplicative(Stream<Result<S, F>> stream) {
+    static <S, F> Result<Stream<S>, Stream<F>> sequenceApplicative(Stream<Result<S, F>> stream) {
         return stream.map(mapEitherToStream()).reduce(success(Stream.of()), ResultStream::applicativeReducer);
     }
 
@@ -65,7 +75,7 @@ public final class ResultStream {
      * @param stream The stream of {@code Result<S, F>} values.
      * @return A {@code Result} containing a stream of success values if all succeed, or the first encountered failure.
      */
-    public static <S, F> Result<Stream<S>, F> sequenceMonadic(Stream<Result<S, F>> stream) {
+    static <S, F> Result<Stream<S>, F> sequenceMonadic(Stream<Result<S, F>> stream) {
         return stream.map(mapToStream()).reduce(success(Stream.of()), ResultStream::monadicReducer);
     }
 

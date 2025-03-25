@@ -10,11 +10,21 @@ import static at.base10.result.Operator.map;
 import static at.base10.result.Operator.mapEither;
 import static at.base10.result.Result.success;
 
-public final class ResultOptional {
-
-    private ResultOptional() {
-    }
-
+/**
+ * A utility class providing functional operations on {@code Optional} values in the context of {@code Result}.
+ *
+ * <p>The {@code ResultOptional} class contains methods to transform and sequence {@code Optional} values that
+ * contain {@code Result} instances, offering both applicative and monadic traversal utilities.
+ *
+ * <p>This class is designed to work with the {@link Result} type and facilitates functional programming
+ * paradigms, particularly in cases where computations may succeed or fail while dealing with optional values.
+ *
+ * <p>All methods in this class are static, and the constructor is private to prevent instantiation.
+ *
+ * @see Result
+ */
+public sealed interface ResultOptional permits None {
+    
     /**
      * Applies a mapping function to an {@code Optional} value and transforms the result into a {@code Result}.
      * Uses an applicative approach, meaning the function is applied if the value is present,
@@ -26,7 +36,7 @@ public final class ResultOptional {
      * @param mapping The function to apply to the value inside the {@code Optional}, producing a {@code Result<S, F>}.
      * @return A function that transforms an {@code Optional<V>} into a {@code Result<Optional<S>, Optional<F>>}.
      */
-    public static <V, S, F> Function<Optional<V>, Result<Optional<S>, Optional<F>>> traverseApplicative(Function<V, Result<S, F>> mapping) {
+    static <V, S, F> Function<Optional<V>, Result<Optional<S>, Optional<F>>> traverseApplicative(Function<V, Result<S, F>> mapping) {
         return optional -> sequenceApplicative(optional.map(mapping));
     }
 
@@ -40,7 +50,7 @@ public final class ResultOptional {
      * @return A {@code Result} containing an {@code Optional<S>} if successful, or an {@code Optional<F>} if failed.
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <S, F> Result<Optional<S>, Optional<F>> sequenceApplicative(Optional<Result<S, F>> optional) {
+    static <S, F> Result<Optional<S>, Optional<F>> sequenceApplicative(Optional<Result<S, F>> optional) {
         return optional.map(mapEither(Optional::of, Optional::of)).orElseGet(ResultOptional::getSuccessOfEmpty);
     }
 
@@ -54,7 +64,7 @@ public final class ResultOptional {
      * @param mapping The function to apply to the value inside the {@code Optional}, producing a {@code Result<S, F>}.
      * @return A function that transforms an {@code Optional<V>} into a {@code Result<Optional<S>, F>}, stopping at the first failure.
      */
-    public static <V, S, F> Function<Optional<V>, Result<Optional<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
+    static <V, S, F> Function<Optional<V>, Result<Optional<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
         return optional -> sequenceMonadic(optional.map(mapping));
     }
 
@@ -68,7 +78,7 @@ public final class ResultOptional {
      * @return A {@code Result} containing an {@code Optional<S>} if successful, or the first encountered failure.
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <S, F> Result<Optional<S>, F> sequenceMonadic(Optional<Result<S, F>> optional) {
+    static <S, F> Result<Optional<S>, F> sequenceMonadic(Optional<Result<S, F>> optional) {
         return optional.map(map(Optional::of)).orElseGet(ResultOptional::getSuccessOfEmpty);
     }
 
