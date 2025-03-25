@@ -13,6 +13,7 @@ public final class Operator {
 
     private Operator() {
     }
+
     /**
      * Swaps the success and failure values of a Result.
      *
@@ -23,38 +24,41 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Result<F, S>> flip() {
         return r -> r.either(Result::failure, Result::success);
     }
+
     /**
      * Transforms both success and failure values of a Result using the provided mapping functions.
      *
-     * @param <S>  The type of the original success value.
-     * @param <S2> The type of the new success value.
-     * @param <F>  The type of the original failure value.
-     * @param <F2> The type of the new failure value.
-     * @param mapper Function to transform the success value.
+     * @param <S>       The type of the original success value.
+     * @param <S2>      The type of the new success value.
+     * @param <F>       The type of the original failure value.
+     * @param <F2>      The type of the new failure value.
+     * @param mapper    Function to transform the success value.
      * @param errMapper Function to transform the failure value.
      * @return A function that applies the transformations to the Result.
      */
     public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
         return r -> r.mapEither(mapper, errMapper);
     }
+
     /**
      * Transforms the success value of a Result using the provided mapping function.
      *
-     * @param <S>  The type of the original success value.
-     * @param <S2> The type of the new success value.
-     * @param <F>  The type of the failure value.
+     * @param <S>    The type of the original success value.
+     * @param <S2>   The type of the new success value.
+     * @param <F>    The type of the failure value.
      * @param mapper Function to transform the success value.
      * @return A function that applies the transformation to the Result.
      */
     public static <S, S2, F> Function<Result<S, F>, Result<S2, F>> map(Function<S, S2> mapper) {
         return r -> r.map(mapper);
     }
+
     /**
      * Transforms the failure value of a Result using the provided mapping function.
      *
-     * @param <S>  The type of the success value.
-     * @param <F>  The type of the original failure value.
-     * @param <F2> The type of the new failure value.
+     * @param <S>    The type of the success value.
+     * @param <F>    The type of the original failure value.
+     * @param <F2>   The type of the new failure value.
      * @param mapper Function to transform the failure value.
      * @return A function that applies the transformation to the Result.
      */
@@ -65,8 +69,8 @@ public final class Operator {
     /**
      * Performs side effects on both success and failure values without modifying the Result.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the failure value.
      * @param success Consumer to process the success value.
      * @param failure Consumer to process the failure value.
      * @return A function that applies the side effects and returns the original Result.
@@ -77,11 +81,12 @@ public final class Operator {
             return r;
         };
     }
+
     /**
      * Performs a side effect on the success value without modifying the Result.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the failure value.
      * @param success Consumer to process the success value.
      * @return A function that applies the side effect and returns the original Result.
      */
@@ -97,20 +102,21 @@ public final class Operator {
      * This allows for side effects without altering the result itself.
      * This is an alias for {@link #peek(Consumer)}.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the failure value.
      * @param success A consumer to execute if the {@code Result} is successful.
      * @return A function that applies the consumer on success and returns the original {@code Result}.
      */
     public static <S, F> Function<Result<S, F>, Result<S, F>> ifSuccess(Consumer<S> success) {
         return peek(success);
     }
+
     /**
      * Executes the given consumer if the {@code Result} is a failure, then returns the same {@code Result}.
      * This allows for side effects without altering the result itself.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the failure value.
      * @param failure A consumer to execute if the {@code Result} is a failure.
      * @return A function that applies the consumer on failure and returns the original {@code Result}.
      */
@@ -120,12 +126,13 @@ public final class Operator {
             return r;
         };
     }
+
     /**
      * Executes the given consumer if the {@code Result} is a failure, then returns the same {@code Result}.
      * This is an alias for {@link #peekFailure(Consumer)}.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the failure value.
      * @param failure A consumer to execute if the {@code Result} is a failure.
      * @return A function that applies the consumer on failure and returns the original {@code Result}.
      */
@@ -144,12 +151,13 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, S> orThrow() {
         return Result::orThrow;
     }
+
     /**
      * Extracts the success value or throws an exception created by the provided function.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
-     * @param <E> The type of the exception to be thrown.
+     * @param <S>               The type of the success value.
+     * @param <F>               The type of the failure value.
+     * @param <E>               The type of the exception to be thrown.
      * @param exceptionFunction Function to create an exception from the failure value.
      * @return A function that extracts the success value or throws an exception.
      */
@@ -163,13 +171,14 @@ public final class Operator {
             return null;
         };
     }
+
     /**
      * Transforms the success value of a {@code Result} using the provided binding function,
      * flattening the nested {@code Result} structure.
      *
-     * @param <S>  The type of the original success value.
-     * @param <S2> The type of the new success value.
-     * @param <F>  The type of the failure value.
+     * @param <S>     The type of the original success value.
+     * @param <S2>    The type of the new success value.
+     * @param <F>     The type of the failure value.
      * @param binding A function that transforms a success value into another {@code Result}.
      * @return A function that applies the binding transformation if the {@code Result} is successful.
      */
@@ -181,48 +190,51 @@ public final class Operator {
      * Transforms both success and failure values of a {@code Result} using the provided binding functions,
      * flattening the nested {@code Result} structure.
      *
-     * @param <S>  The type of the original success value.
-     * @param <S2> The type of the new success value.
-     * @param <F>  The type of the original failure value.
-     * @param <F2> The type of the new failure value.
-     * @param binding A function that transforms a success value into another {@code Result}.
+     * @param <S>            The type of the original success value.
+     * @param <S2>           The type of the new success value.
+     * @param <F>            The type of the original failure value.
+     * @param <F2>           The type of the new failure value.
+     * @param binding        A function that transforms a success value into another {@code Result}.
      * @param bindingFailure A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the appropriate transformation based on success or failure.
      */
     public static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
         return r -> r.bindEither(binding, bindingFailure);
     }
+
     /**
      * Transforms the failure value of a {@code Result} using the provided binding function,
      * flattening the nested {@code Result} structure.
      *
-     * @param <S>  The type of the success value.
-     * @param <F>  The type of the original failure value.
-     * @param <F2> The type of the new failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the original failure value.
+     * @param <F2>    The type of the new failure value.
      * @param binding A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the binding transformation if the {@code Result} is a failure.
      */
     public static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
         return r -> r.bindFailure(binding);
     }
+
     /**
      * Asynchronously transforms the success value of a {@code Result} using the provided binding function.
      *
-     * @param <S>  The type of the original success value.
-     * @param <S2> The type of the new success value.
-     * @param <F>  The type of the failure value.
+     * @param <S>     The type of the original success value.
+     * @param <S2>    The type of the new success value.
+     * @param <F>     The type of the failure value.
      * @param binding A function that asynchronously transforms a success value into another {@code Result}.
      * @return A function that applies the binding transformation asynchronously if the {@code Result} is successful.
      */
     public static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> bindAsync(Function<S, CompletableFuture<Result<S2, F>>> binding) {
         return r -> r.either(binding, e -> CompletableFuture.completedFuture(Result.failure(e)));
     }
+
     /**
      * Asynchronously transforms the failure value of a {@code Result} using the provided binding function.
      *
-     * @param <S>  The type of the success value.
-     * @param <F>  The type of the original failure value.
-     * @param <F2> The type of the new failure value.
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the original failure value.
+     * @param <F2>    The type of the new failure value.
      * @param binding A function that asynchronously transforms a failure value into another {@code Result}.
      * @return A function that applies the binding transformation asynchronously if the {@code Result} is a failure.
      */
@@ -233,28 +245,31 @@ public final class Operator {
     private static <T, C> Function<T, C> toConst(C constant) {
         return t -> constant;
     }
+
     /**
      * Checks if the success value matches the given predicate.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>       The type of the success value.
+     * @param <F>       The type of the failure value.
      * @param predicate The predicate to test the success value.
      * @return A function that returns true if the success value matches the predicate otherwise returns false.
      */
     public static <S, F> Function<Result<S, F>, Boolean> anyMatch(Predicate<S> predicate) {
         return r -> r.either(predicate::test, toConst(false));
     }
+
     /**
      * Checks if all success values match the given predicate.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>       The type of the success value.
+     * @param <F>       The type of the failure value.
      * @param predicate The predicate to test the success value.
      * @return A function that returns true if all success values match the predicate or on failure otherwise returns false.
      */
     public static <S, F> Function<Result<S, F>, Boolean> allMatch(Predicate<S> predicate) {
         return r -> r.either(predicate::test, toConst(true));
     }
+
     /**
      * Converts a Result into a List containing the success value, or an empty list if failure.
      *
@@ -265,6 +280,7 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, List<S>> toList() {
         return r -> r.either(List::of, toConst(List.of()));
     }
+
     /**
      * Converts a Result into a Stream containing the success value, or an empty stream if failure.
      *
@@ -275,6 +291,7 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Stream<S>> toStream() {
         return r -> r.either(Stream::of, toConst(Stream.empty()));
     }
+
     /**
      * Converts a Result into an Optional containing the success value, or empty if failure.
      *
@@ -285,28 +302,31 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Optional<S>> toOptional() {
         return Result::toOptional;
     }
+
     /**
      * Returns the success value or a default value if failure.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>          The type of the success value.
+     * @param <F>          The type of the failure value.
      * @param defaultValue The default value to return if failure.
      * @return A function that returns the success value or the default value.
      */
     public static <S, F> Function<Result<S, F>, S> defaultsTo(S defaultValue) {
         return r -> r.either(Function.identity(), toConst(defaultValue));
     }
+
     /**
      * Returns the success value or a value supplied by the given Supplier if failure.
      *
-     * @param <S> The type of the success value.
-     * @param <F> The type of the failure value.
+     * @param <S>      The type of the success value.
+     * @param <F>      The type of the failure value.
      * @param supplier The supplier providing a default value in case of failure.
      * @return A function that returns the success value or a supplied default.
      */
     public static <S, F> Function<Result<S, F>, S> defaultsTo(Supplier<S> supplier) {
         return r -> r.either(Function.identity(), toConst(supplier.get()));
     }
+
     /**
      * Counts the number of successful results.
      * <p>
@@ -319,6 +339,7 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Integer> count() {
         return r -> r.either(toConst(1), toConst(0));
     }
+
     /**
      * Checks if the Result represents success.
      *
@@ -329,6 +350,7 @@ public final class Operator {
     public static <S, F> Function<Result<S, F>, Boolean> isSuccess() {
         return Result::isSuccess;
     }
+
     /**
      * Checks if the Result represents failure.
      *

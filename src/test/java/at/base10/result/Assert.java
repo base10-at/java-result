@@ -12,8 +12,8 @@ public class Assert {
         assertNotNull(result);
         assertInstanceOf(Result.class, result);
         assertInstanceOf(Success.class, result);
-        assertEquals(value, result.getValue());
-        assertThrows(NoSuchElementException.class, result::getFailure, "No value present");
+        assertEquals(value, result.value());
+        assertThrows(NoSuchElementException.class, result::failure, "No value present");
     }
 
     public static <V, E> void assertFailureEquals(E value, Result<V, E> result) {
@@ -21,8 +21,8 @@ public class Assert {
         assertInstanceOf(Result.class, result);
         assertInstanceOf(Failure.class, result);
         assertInstanceOf(Failure.class, result);
-        assertEquals(value, result.getFailure());
-        assertThrows(NoSuchElementException.class, result::getValue, "No value present");
+        assertEquals(value, result.failure());
+        assertThrows(NoSuchElementException.class, result::value, "No value present");
     }
 
 

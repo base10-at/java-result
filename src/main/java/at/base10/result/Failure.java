@@ -4,13 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 
-final class Failure<S, F> extends Result<S, F> {
-    private final F failure;
-
-    Failure(F failure) {
-        super();
-        this.failure = failure;
-    }
+public record Failure<S, F>(F failure) implements Result<S, F> {
 
     @Override
     public boolean isSuccess() {
@@ -18,13 +12,13 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
-    protected S getValue() {
+    public S value() {
         throw new NoSuchElementException("No value present");
     }
 
     @Override
-    public F getFailure() {
-        return failure;
+    public <S2> S2 then(Function<Result<S, F>, S2> fn) {
+        return fn.apply(this);
     }
 
     @Override
@@ -49,7 +43,10 @@ final class Failure<S, F> extends Result<S, F> {
     }
 
     @Override
-    public <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+    public <S2, F2> Result<S2, F2> bindEither(
+            Function<S, Result<S2, F2>> binding,
+            Function<F, Result<S2, F2>> bindingFailure
+    ) {
         return bindingFailure.apply(failure);
     }
 

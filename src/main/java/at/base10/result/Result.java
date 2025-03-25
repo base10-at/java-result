@@ -5,19 +5,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public abstract sealed class Result<S, F> permits Success, Failure {
+public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a successful Result instance.
      *
      * @param value The success value.
      * @return A Result representing success.
      */
-    public static <S, F> Result<S, F> success(S value) {
+    static <S, F> Result<S, F> success(S value) {
         return new Success<>(value);
     }
 
     @SuppressWarnings("unused")
-    public static <S, F> Result<S, F> success(S value, Class<F> failureType) {
+    static <S, F> Result<S, F> success(S value, Class<F> failureType) {
         return new Success<>(value);
     }
 
@@ -27,12 +27,12 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param value The failure value.
      * @return A Result representing failure.
      */
-    public static <S, F> Result<S, F> failure(F value) {
+    static <S, F> Result<S, F> failure(F value) {
         return new Failure<>(value);
     }
 
     @SuppressWarnings("unused")
-    public static <S, F> Result<S, F> failure(F Failure, Class<S> successType) {
+    static <S, F> Result<S, F> failure(F Failure, Class<S> successType) {
         return new Failure<>(Failure);
     }
 
@@ -44,7 +44,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @return A success Result if optional is present, otherwise a failure Result.
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <S, F> Result<S, F> fromOptional(Optional<S> optional, Supplier<F> supplier) {
+    static <S, F> Result<S, F> fromOptional(Optional<S> optional, Supplier<F> supplier) {
         return optional.map(Result::<S, F>success).orElse(Result.failure(supplier.get()));
     }
 
@@ -55,7 +55,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @return A success Result if optional is present, otherwise a failure Result.
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <S> Result<S, Void> fromOptional(Optional<S> optional) {
+    static <S> Result<S, Void> fromOptional(Optional<S> optional) {
         return fromOptional(optional, () -> null);
     }
 
@@ -67,7 +67,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param supplier  The failure supplier if predicate test fails.
      * @return A success Result if predicate test passes, otherwise a failure Result.
      */
-    public static <S, F> Result<S, F> fromPredicate(S value, Predicate<S> predicate, Supplier<F> supplier) {
+    static <S, F> Result<S, F> fromPredicate(S value, Predicate<S> predicate, Supplier<F> supplier) {
         return predicate.test(value) ? success(value) : failure(supplier.get());
     }
 
@@ -78,7 +78,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param predicate The predicate function.
      * @return A success Result if predicate test passes, otherwise a failure Result.
      */
-    public static <S> Result<S, Void> fromPredicate(S value, Predicate<S> predicate) {
+    static <S> Result<S, Void> fromPredicate(S value, Predicate<S> predicate) {
         return fromPredicate(value, predicate, () -> null);
     }
 
@@ -90,7 +90,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param failureFn Supplier for failure value.
      * @return A success Result if true, otherwise a failure Result.
      */
-    public static <S, F> Result<S, F> fromBoolean(Boolean value, Supplier<S> successFn, Supplier<F> failureFn) {
+    static <S, F> Result<S, F> fromBoolean(Boolean value, Supplier<S> successFn, Supplier<F> failureFn) {
         return value ? success(successFn.get()) : failure(failureFn.get());
     }
 
@@ -100,7 +100,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param value The boolean value.
      * @return A success Result if true, otherwise a failure Result.
      */
-    public static Result<Boolean, Boolean> fromBoolean(Boolean value) {
+    static Result<Boolean, Boolean> fromBoolean(Boolean value) {
         return value ? success(true) : failure(false);
     }
 
@@ -109,20 +109,20 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      *
      * @return True if success, false otherwise.
      */
-    public abstract boolean isSuccess();
+    boolean isSuccess();
 
     /**
      * Checks if the Result represents failure.
      *
      * @return True if failure, false otherwise.
      */
-    public boolean isFailure() {
+    default boolean isFailure() {
         return !isSuccess();
     }
 
-    protected abstract S getValue();
+    S value();
 
-    protected abstract F getFailure();
+    F failure();
 
     /**
      * Applies a function to this Result instance and returns a new value.
@@ -131,9 +131,8 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param fn   The function to apply to the Result.
      * @return The transformed value.
      */
-    public <S2> S2 then(Function<Result<S, F>, S2> fn) {
-        return fn.apply(this);
-    }
+    <S2> S2 then(Function<Result<S, F>, S2> fn);
+
 
     /**
      * Transforms both success and failure values using the provided mapping functions.
@@ -144,7 +143,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param errMapper Function to transform the failure value.
      * @return A new Result with transformed success and failure values.
      */
-    abstract public <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper);
+    <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper);
 
     /**
      * Transforms the success value using the provided mapping function.
@@ -153,7 +152,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param mapper Function to transform the success value.
      * @return A new Result with the transformed success value.
      */
-    abstract public <S2> Result<S2, F> map(Function<S, S2> mapper);
+    <S2> Result<S2, F> map(Function<S, S2> mapper);
 
     /**
      * Transforms the failure value using the provided mapping function.
@@ -162,7 +161,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param mapper Function to transform the failure value.
      * @return A new Result with the transformed failure value.
      */
-    abstract public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
+    <F2> Result<S, F2> mapFailure(Function<F, F2> mapper);
 
     /**
      * Binds a function to both success and failure values, transforming the Result accordingly.
@@ -173,7 +172,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param bindingFailure Function to transform the failure value into a new Result.
      * @return A new Result produced by the applied binding functions.
      */
-    abstract public <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure);
+    <S2, F2> Result<S2, F2> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure);
 
     /**
      * Binds a function to the success value, transforming the Result accordingly.
@@ -182,7 +181,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param binding Function to transform the success value into a new Result.
      * @return A new Result produced by applying the binding function to the success value.
      */
-    abstract public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
+    <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding);
 
     /**
      * Binds a function to the failure value, transforming the Result accordingly.
@@ -191,7 +190,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param binding Function to transform the failure value into a new Result.
      * @return A new Result produced by applying the binding function to the failure value.
      */
-    abstract public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);
+    <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);
 
     /**
      * Applies one of two functions based on whether the result is a success or failure.
@@ -201,7 +200,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @param failureFn Function applied if the result is a failure.
      * @return The result of the applied function.
      */
-    public abstract <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn);
+    <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn);
 
     /**
      * Retrieves the success value or throws an exception.
@@ -209,7 +208,7 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @return The success value.
      * @throws RuntimeException If the Result is a failure.
      */
-    public abstract S orThrow();
+    S orThrow();
 
     /**
      * Retrieves the success value or throws an exception created by the provided function.
@@ -219,9 +218,9 @@ public abstract sealed class Result<S, F> permits Success, Failure {
      * @return The success value if present.
      * @throws E If the result is a failure, an exception created by the exceptionFunction is thrown.
      */
-    public abstract <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E;
+    <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E;
 
-    public abstract Optional<S> toOptional();
+    Optional<S> toOptional();
 
 
 }
