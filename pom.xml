@@ -81,10 +81,11 @@
                     </mutators>
 
                 </configuration>
+
                 <executions>
                     <execution>
                         <id>run-pitest</id>
-                        <phase>verify</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>mutationCoverage</goal>
                         </goals>
