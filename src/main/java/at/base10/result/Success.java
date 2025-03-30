@@ -144,6 +144,14 @@ public record Success<S, F>(S value) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public S orElse(Function<F, S> failureMapping) {
+        return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Optional<S> toOptional() {
         return Optional.of(value);
     }

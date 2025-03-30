@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ResultTest {
 
-
     @Test
     void test_success() {
         assertSuccessEquals(42, success(42));
@@ -84,7 +83,6 @@ class ResultTest {
         assertSuccessEquals(42, failure(42).then(flip()));
     }
 
-
     @Test
     void test_map() {
         assertSuccessEquals("421",
@@ -100,7 +98,6 @@ class ResultTest {
         );
     }
 
-
     @Test
     void test_mapFailure() {
         assertFailureEquals("421",
@@ -110,13 +107,11 @@ class ResultTest {
         );
     }
 
-
     @Test
     void test_mapFailure_if_success() {
         var result = success(42).then(mapFailure(x -> x + "1"));
         assertSuccessEquals(42, result);
     }
-
 
     @Test
     void test_bind() {
@@ -209,8 +204,6 @@ class ResultTest {
         assertNotEquals(null, success(43));
     }
 
-
-
     @Test
     void test_hashCode() {
         assertEquals(1986982223, failure(42).hashCode());
@@ -247,7 +240,6 @@ class ResultTest {
         assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsTo(43)));
         assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsTo(43)));
     }
-
 
     @Test
     void test_defaultsToSupplier() {
@@ -323,5 +315,11 @@ class ResultTest {
     void testThrowDefaultOp() {
         assertEquals(42, success(42).then(orThrow()));
         assertThrows(NoSuchElementException.class, () -> failure(42).then(orThrow()), "No value present");
+    }
+
+    @Test
+    void testOrElse() {
+        assertEquals(42, success(42, Integer.class).orElse(f -> f + 1));
+        assertEquals(43, failure(42, Integer.class).orElse(f -> f + 1));
     }
 }

@@ -302,6 +302,15 @@ public sealed interface Result<S, F> permits Success, Failure {
     <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E;
 
     /**
+     * Retrieves the success value if the result is successful, or applies the given function
+     * to transform the failure value into a success value.
+     *
+     * @param failureMapping a function that maps the failure value to a success value
+     * @return the success value if present, otherwise the mapped failure value
+     */
+    S orElse(Function<F, S> failureMapping) ;
+
+    /**
      * @return Optional an option of success type
      */
     Optional<S> toOptional();

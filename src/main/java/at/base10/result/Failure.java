@@ -139,6 +139,14 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public S orElse(Function<F, S> failureMapping) {
+        return failureMapping.apply(failure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding) {
         return binding.apply(failure);
     }

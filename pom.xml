@@ -6,7 +6,7 @@
 
     <groupId>at.base10</groupId>
     <artifactId>result</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <name>result</name>
     <description>A fancy result library</description>
     <url>https://github.com/base10-at/java-result</url>
@@ -56,9 +56,9 @@
             <groupId>org.pitest</groupId>
             <artifactId>pitest-parent</artifactId>
             <version>${pitest.version}</version>
+            <scope>test</scope>
             <type>pom</type>
         </dependency>
-        <!--allows to work with JUnit 5-->
     </dependencies>
 
     <build>
@@ -89,6 +89,10 @@
                         <goals>
                             <goal>mutationCoverage</goal>
                         </goals>
+                        <configuration>
+                            <failWhenNoMutations>true</failWhenNoMutations>
+                            <maxSurviving>0</maxSurviving>
+                        </configuration>
                     </execution>
                 </executions>
                 <dependencies>
