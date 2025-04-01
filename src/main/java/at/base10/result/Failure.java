@@ -91,6 +91,29 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
         //noinspection unchecked
         return (Result<S2, F>) this;
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S2, F2> Result<S2, F2> flatMapEither(Function<S, Result<S2, F2>> mapping, Function<F, Result<S2, F2>> mappingFailure) {
+        return bindEither(mapping, mappingFailure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S2> Result<S2, F> flatMap(Function<S, Result<S2, F>> mapping) {
+        return bind(mapping);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <F2> Result<S, F2> flatMapFailure(Function<F, Result<S, F2>> mappingFailure) {
+        return bindFailure((mappingFailure));
+    }
 
     /**
      * {@inheritDoc}

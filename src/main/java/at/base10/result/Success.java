@@ -104,6 +104,30 @@ public record Success<S, F>(S value) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public <S2, F2> Result<S2, F2> flatMapEither(Function<S, Result<S2, F2>> mapping, Function<F, Result<S2, F2>> mappingFailure) {
+        return bindEither(mapping, mappingFailure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S2> Result<S2, F> flatMap(Function<S, Result<S2, F>> mapping) {
+        return bind(mapping);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <F2> Result<S, F2> flatMapFailure(Function<F, Result<S, F2>> mappingFailure) {
+        return bindFailure((mappingFailure));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Result<S, F> peekEither(@NonNull Consumer<S> consumer, @NonNull Consumer<F> errConsumer) {
         consumer.accept(value);
         return this;

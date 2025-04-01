@@ -266,6 +266,76 @@ public sealed interface Operator permits None {
         return r -> r.either(e -> CompletableFuture.completedFuture(Result.success(e)), binding);
     }
 
+    /**
+     * Transforms the success value of a {@code Result} using the provided mapping function,
+     * flattening the nested {@code Result} structure.
+     *
+     * @param <S>     The type of the original success value.
+     * @param <S2>    The type of the new success value.
+     * @param <F>     The type of the failure value.
+     * @param mapping A function that transforms a success value into another {@code Result}.
+     * @return A function that applies the mapping transformation if the {@code Result} is successful.
+     */
+    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> flatMap(Function<S, Result<S2, F>> mapping) {
+        return r -> r.flatMap(mapping);
+    }
+
+    /**
+     * Transforms both success and failure values of a {@code Result} using the provided mapping functions,
+     * flattening the nested {@code Result} structure.
+     *
+     * @param <S>            The type of the original success value.
+     * @param <S2>           The type of the new success value.
+     * @param <F>            The type of the original failure value.
+     * @param <F2>           The type of the new failure value.
+     * @param mapping        A function that transforms a success value into another {@code Result}.
+     * @param mappingFailure A function that transforms a failure value into another {@code Result}.
+     * @return A function that applies the appropriate transformation based on success or failure.
+     */
+    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> flatMapEither(Function<S, Result<S2, F2>> mapping, Function<F, Result<S2, F2>> mappingFailure) {
+        return r -> r.flatMapEither(mapping, mappingFailure);
+    }
+
+    /**
+     * Transforms the failure value of a {@code Result} using the provided mapping function,
+     * flattening the nested {@code Result} structure.
+     *
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the original failure value.
+     * @param <F2>    The type of the new failure value.
+     * @param mapping A function that transforms a failure value into another {@code Result}.
+     * @return A function that applies the mapping transformation if the {@code Result} is a failure.
+     */
+    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> flatMapFailure(Function<F, Result<S, F2>> mapping) {
+        return r -> r.flatMapFailure(mapping);
+    }
+
+    /**
+     * Asynchronously transforms the success value of a {@code Result} using the provided mapping function.
+     *
+     * @param <S>     The type of the original success value.
+     * @param <S2>    The type of the new success value.
+     * @param <F>     The type of the failure value.
+     * @param mapping A function that asynchronously transforms a success value into another {@code Result}.
+     * @return A function that applies the mapping transformation asynchronously if the {@code Result} is successful.
+     */
+    static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> flatMapAsync(Function<S, CompletableFuture<Result<S2, F>>> mapping) {
+        return r -> r.either(mapping, e -> CompletableFuture.completedFuture(Result.failure(e)));
+    }
+
+    /**
+     * Asynchronously transforms the failure value of a {@code Result} using the provided mapping function.
+     *
+     * @param <S>     The type of the success value.
+     * @param <F>     The type of the original failure value.
+     * @param <F2>    The type of the new failure value.
+     * @param mapping A function that asynchronously transforms a failure value into another {@code Result}.
+     * @return A function that applies the mapping transformation asynchronously if the {@code Result} is a failure.
+     */
+    static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> flatMapFailureAsync(Function<F, CompletableFuture<Result<S, F2>>> mapping) {
+        return r -> r.either(e -> CompletableFuture.completedFuture(Result.success(e)), mapping);
+    }
+
     private static <T, C> Function<T, C> toConst(C constant) {
         return t -> constant;
     }

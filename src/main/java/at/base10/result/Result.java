@@ -274,6 +274,39 @@ public sealed interface Result<S, F> permits Success, Failure {
     <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding);
 
     /**
+     * Transforms either the success or failure value using the provided mapping functions.
+     * If this instance represents a success, it applies {@code mapping}. If it represents a failure, it applies {@code mappingFailure}.
+     *
+     * @param <S2>           The type of the new success value.
+     * @param <F2>           The type of the new failure value.
+     * @param mapping        Function to transform the success value into a new Result.
+     * @param mappingFailure Function to transform the failure value into a new Result.
+     * @return A new Result produced by the applied binding functions.
+     */
+    <S2, F2> Result<S2, F2> flatMapEither(Function<S, Result<S2, F2>> mapping, Function<F, Result<S2, F2>> mappingFailure);
+
+    /**
+     * Transforms the success value using the provided mapping function, which returns a new {@code Result}.
+     * If this instance represents a failure, it remains unchanged.
+     *
+     * @param <S2>    The type of the new success value.
+     * @param mapping Function to transform the success value into a new Result.
+     * @return A new {@code Result} produced by applying the binding function to the success value.
+     */
+    <S2> Result<S2, F> flatMap(Function<S, Result<S2, F>> mapping);
+
+    /**
+     * Transforms the failure value using the provided mapping function, which returns a new {@code Result}.
+     * If this instance represents a success, it remains unchanged.
+     *
+     *
+     * @param <F2>           The type of the new failure value.
+     * @param mappingFailure Function to transform the failure value into a new Result.
+     * @return A new {@code Result} produced by applying the binding function to the failure value.
+     */
+    <F2> Result<S, F2> flatMapFailure(Function<F, Result<S, F2>> mappingFailure);
+
+    /**
      * Applies one of two functions based on whether the result is a success or failure.
      *
      * @param <R2>      The return type of the applied function.

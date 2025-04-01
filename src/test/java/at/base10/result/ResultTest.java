@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ResultTest {
 
-
     @Test
     void test_success() {
         assertSuccessEquals(42, success(42));
@@ -350,9 +349,5 @@ class ResultTest {
     void testOrElse() {
         assertEquals(42, success(42, Integer.class).orElse(f -> f + 1));
         assertEquals(43, failure(42, Integer.class).orElse(f -> f + 1));
-    }
-    @Test
-    void testNone() {
-        assertInstanceOf(None.class,new None());
     }
 }
