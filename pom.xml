@@ -67,6 +67,7 @@
             <version>${projectlombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!--suppress VulnerableLibrariesLocal -->
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
@@ -84,9 +85,11 @@
                 <configuration>
                     <targetClasses>
                         <param>at.base10.result.*</param>
+                        <param>at.base10.result.interop*</param>
                     </targetClasses>
                     <targetTests>
                         <param>at.base10.result.*</param>
+                        <param>at.base10.result.interop*</param>
                     </targetTests>
                     <mutators>
                         <mutator>DEFAULTS</mutator>
@@ -256,6 +259,11 @@
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>1</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>1</minimum>
                                         </limit>
