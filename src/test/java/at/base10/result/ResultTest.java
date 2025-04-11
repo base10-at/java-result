@@ -291,6 +291,6 @@ class ResultTest {
 
     @Test
     void testNone() {
-        assertInstanceOf(None.class,new None());
+        assertInstanceOf(None.class, new None());
     }
 }

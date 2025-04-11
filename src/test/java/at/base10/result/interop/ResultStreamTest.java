@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ResultStreamTest {
 
 
-
     @Nested
     class TraverseApplicative {
         @Test
@@ -313,7 +312,6 @@ public class ResultStreamTest {
                     "'Z' is not a number"
             )));
         }
-
 
 
         @Test

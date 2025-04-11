@@ -14,6 +14,37 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NonNullResultTest {
 
+    private static Stream<Arguments> fnProvider() {
+
+
+        return Stream.of(
+                new Case<>((Result<Integer, Integer> f) -> f.bindFailure(null), "binding"),
+                new Case<>((Result<Integer, Integer> f) -> f.bind(null), "binding"),
+                new Case<>((Result<Integer, Integer> f) -> f.bindEither(null, e -> Result.success(e, Integer.class)), "binding"),
+                new Case<>((Result<Integer, Integer> f) -> f.bindEither(e -> Result.success(e, Integer.class), null), "bindingFailure"),
+
+                new Case<>((Result<Integer, Integer> f) -> f.mapFailure(null), "mapper"),
+                new Case<>((Result<Integer, Integer> f) -> f.map(null), "mapper"),
+                new Case<>((Result<Integer, Integer> f) -> f.mapEither(null, e -> Result.success(e, Integer.class)), "mapper"),
+                new Case<>((Result<Integer, Integer> f) -> f.mapEither(e -> Result.success(e, Integer.class), null), "errMapper"),
+
+                new Case<>((Result<Integer, Integer> f) -> f.peekFailure(null), "consumer"),
+                new Case<>((Result<Integer, Integer> f) -> f.peek(null), "consumer"),
+                new Case<>((Result<Integer, Integer> f) -> f.peekEither(null, e -> Result.success(e, Integer.class)), "consumer"),
+                new Case<>((Result<Integer, Integer> f) -> f.peekEither(e -> Result.success(e, Integer.class), null), "errConsumer"),
+
+                new Case<>((Result<Integer, Integer> f) -> f.either(null, e -> Result.success(e, Integer.class)), "successFn"),
+                new Case<>((Result<Integer, Integer> f) -> f.either(e -> Result.success(e, Integer.class), null), "failureFn"),
+
+                new Case<>((Result<Integer, Integer> f) -> f.then(null), "fn"),
+
+                new Case<>((Result<Integer, Integer> f) -> f.recover(null), "recoveryFn"),
+                new Case<>((Result<Integer, Integer> f) -> f.orThrow(null), "exceptionFunction"),
+                new Case<>((Result<Integer, Integer> f) -> f.orElse(null), "failureMapping")
+
+        ).map(c -> Arguments.of(c.fn(), c.paramName()));
+    }
+
     private String nullString(String paramName) {
         return paramName + " is marked non-null but is null";
     }
@@ -42,37 +73,6 @@ public class NonNullResultTest {
             Function<Result<E, E>, Object> fn,
             String paramName
     ) {
-    }
-
-    private static Stream<Arguments> fnProvider() {
-
-
-        return Stream.of(
-                new Case<>((Result<Integer, Integer> f) -> f.bindFailure(null), "binding"),
-                new Case<>((Result<Integer, Integer> f) -> f.bind(null), "binding"),
-                new Case<>((Result<Integer, Integer> f) -> f.bindEither(null,e -> Result.success(e,Integer.class)), "binding"),
-                new Case<>((Result<Integer, Integer> f) -> f.bindEither(e -> Result.success(e,Integer.class),null), "bindingFailure"),
-
-                new Case<>((Result<Integer, Integer> f) -> f.mapFailure(null), "mapper"),
-                new Case<>((Result<Integer, Integer> f) -> f.map(null), "mapper"),
-                new Case<>((Result<Integer, Integer> f) -> f.mapEither(null,e -> Result.success(e,Integer.class)), "mapper"),
-                new Case<>((Result<Integer, Integer> f) -> f.mapEither(e -> Result.success(e,Integer.class),null), "errMapper"),
-
-                new Case<>((Result<Integer, Integer> f) -> f.peekFailure(null), "consumer"),
-                new Case<>((Result<Integer, Integer> f) -> f.peek(null), "consumer"),
-                new Case<>((Result<Integer, Integer> f) -> f.peekEither(null,e -> Result.success(e,Integer.class)), "consumer"),
-                new Case<>((Result<Integer, Integer> f) -> f.peekEither(e -> Result.success(e,Integer.class),null), "errConsumer"),
-
-                new Case<>((Result<Integer, Integer> f) -> f.either(null,e -> Result.success(e,Integer.class)), "successFn"),
-                new Case<>((Result<Integer, Integer> f) -> f.either(e -> Result.success(e,Integer.class),null), "failureFn"),
-
-                new Case<>((Result<Integer, Integer> f) -> f.then(null), "fn"),
-
-                new Case<>((Result<Integer, Integer> f) -> f.recover(null), "recoveryFn"),
-                new Case<>((Result<Integer, Integer> f) -> f.orThrow(null), "exceptionFunction"),
-                new Case<>((Result<Integer, Integer> f) -> f.orElse(null), "failureMapping")
-
-        ).map(c -> Arguments.of(c.fn(), c.paramName()));
     }
 
 }

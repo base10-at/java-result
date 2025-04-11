@@ -91,6 +91,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
         //noinspection unchecked
         return (Result<S2, F>) this;
     }
+
     /**
      * {@inheritDoc}
      */

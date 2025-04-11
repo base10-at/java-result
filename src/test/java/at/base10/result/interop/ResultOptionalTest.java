@@ -36,6 +36,7 @@ public class ResultOptionalTest {
                     success(Optional.of(1))
             );
         }
+
         @Test
         void test_emptyOptional_sequenceMonadic() {
             Optional<Result<Integer, String>> optional = Optional.empty();
@@ -48,7 +49,7 @@ public class ResultOptionalTest {
     }
 
     @Nested
-    public class SequenceApplicative{
+    public class SequenceApplicative {
         @Test
         void test_SingleFailureOptional_sequenceApplicative() {
             Optional<Result<Integer, String>> optional = Optional.of(
@@ -70,6 +71,7 @@ public class ResultOptionalTest {
                     success(Optional.of(1))
             );
         }
+
         @Test
         void test_EmptyOptional_sequenceApplicative() {
             Optional<Result<Integer, String>> optional = Optional.empty();
@@ -150,8 +152,6 @@ public class ResultOptionalTest {
 
 
     }
-
-
 
 
 }

@@ -14,27 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class NonNullResultOperatorTest {
 
-    private String nullString(String paramName) {
-        return paramName + " is marked non-null but is null";
-    }
-
-
-    @DisplayName("assert NonNull Failure function param")
-    @ParameterizedTest(name = "{index} => paramName={1}")
-    @MethodSource("fnProvider")
-    void assertNonNullFailure(Supplier<Object> fn, String paramName) {
-
-        assertEquals(nullString(paramName),
-                assertThrows(NullPointerException.class, fn::get).getMessage());
-
-    }
-
-    record Case(
-            Supplier<Object> fn,
-            String paramName
-    ) {
-    }
-
     private static Stream<Arguments> fnProvider() {
 
 
@@ -67,6 +46,25 @@ public class NonNullResultOperatorTest {
         ).map(c -> Arguments.of(c.fn(), c.paramName()));
     }
 
+    private String nullString(String paramName) {
+        return paramName + " is marked non-null but is null";
+    }
+
+    @DisplayName("assert NonNull Failure function param")
+    @ParameterizedTest(name = "{index} => paramName={1}")
+    @MethodSource("fnProvider")
+    void assertNonNullFailure(Supplier<Object> fn, String paramName) {
+
+        assertEquals(nullString(paramName),
+                assertThrows(NullPointerException.class, fn::get).getMessage());
+
+    }
+
+    record Case(
+            Supplier<Object> fn,
+            String paramName
+    ) {
+    }
 
 
 }

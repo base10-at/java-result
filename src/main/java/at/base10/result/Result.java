@@ -299,7 +299,6 @@ public sealed interface Result<S, F> permits Success, Failure {
      * Transforms the failure value using the provided mapping function, which returns a new {@code Result}.
      * If this instance represents a success, it remains unchanged.
      *
-     *
      * @param <F2>           The type of the new failure value.
      * @param mappingFailure Function to transform the failure value into a new Result.
      * @return A new {@code Result} produced by applying the binding function to the failure value.
