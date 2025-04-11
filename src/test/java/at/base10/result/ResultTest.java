@@ -350,4 +350,9 @@ class ResultTest {
         assertEquals(42, success(42, Integer.class).orElse(f -> f + 1));
         assertEquals(43, failure(42, Integer.class).orElse(f -> f + 1));
     }
+
+    @Test
+    void testNone() {
+        assertInstanceOf(None.class,new None());
+    }
 }
