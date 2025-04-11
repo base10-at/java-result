@@ -24,7 +24,7 @@ import static at.base10.result.Result.success;
  * @see Result
  */
 public sealed interface ResultOptional permits None {
-    
+
     /**
      * Applies a mapping function to an {@code Optional} value and transforms the result into a {@code Result}.
      * Uses an applicative approach, meaning the function is applied if the value is present,

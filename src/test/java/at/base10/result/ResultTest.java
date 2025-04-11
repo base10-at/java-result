@@ -15,6 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ResultTest {
 
+    private String nullString(String paramName) {
+        return paramName + " is marked non-null but is null";
+    }
+
     @Test
     void test_success() {
         assertSuccessEquals(42, success(42));
@@ -186,12 +190,12 @@ class ResultTest {
 
     @Test
     void test_operation_recover_null() {
-        assertEquals("recoveryFn was null",
+        assertEquals(nullString("recoveryFn"),
                 assertThrows(NullPointerException.class, () -> Result.failure("42", Integer.class)
                         .then(recover(null))
                 ).getMessage());
 
-        assertEquals("recoveryFn was null",
+        assertEquals(nullString("recoveryFn"),
                 assertThrows(NullPointerException.class, () -> Result.success("42", Integer.class)
                         .then(recover(null))
                 ).getMessage());
@@ -362,5 +366,9 @@ class ResultTest {
     void testOrElse() {
         assertEquals(42, success(42, Integer.class).orElse(f -> f + 1));
         assertEquals(43, failure(42, Integer.class).orElse(f -> f + 1));
+    }
+    @Test
+    void testNone() {
+        assertInstanceOf(None.class,new None());
     }
 }

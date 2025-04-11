@@ -1,5 +1,7 @@
 package at.base10.result;
 
+import lombok.NonNull;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,7 +38,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <S2> S2 then(Function<Result<S, F>, S2> fn) {
+    public <S2> S2 then(@NonNull Function<Result<S, F>, S2> fn) {
         return fn.apply(this);
     }
 
@@ -44,7 +46,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <R2> R2 either(Function<S, R2> successFn, Function<F, R2> failureFn) {
+    public <R2> R2 either(@NonNull Function<S, R2> successFn, @NonNull Function<F, R2> failureFn) {
         return failureFn.apply(failure);
     }
 
@@ -52,7 +54,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <S2, F2> Result<S2, F2> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
+    public <S2, F2> Result<S2, F2> mapEither(@NonNull Function<S, S2> mapper, @NonNull Function<F, F2> errMapper) {
         return new Failure<>(errMapper.apply(failure));
     }
 
@@ -60,7 +62,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <S2> Result<S2, F> map(Function<S, S2> mapper) {
+    public <S2> Result<S2, F> map(@NonNull Function<S, S2> mapper) {
         //noinspection unchecked
         return (Result<S2, F>) this;
     }
@@ -69,7 +71,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <F2> Result<S, F2> mapFailure(Function<F, F2> mapper) {
+    public <F2> Result<S, F2> mapFailure(@NonNull Function<F, F2> mapper) {
         return new Failure<>(mapper.apply(failure));
     }
 
@@ -77,10 +79,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <S2, F2> Result<S2, F2> bindEither(
-            Function<S, Result<S2, F2>> binding,
-            Function<F, Result<S2, F2>> bindingFailure
-    ) {
+    public <S2, F2> Result<S2, F2> bindEither(@NonNull Function<S, Result<S2, F2>> binding, @NonNull Function<F, Result<S2, F2>> bindingFailure) {
         return bindingFailure.apply(failure);
     }
 
@@ -88,7 +87,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <S2> Result<S2, F> bind(Function<S, Result<S2, F>> binding) {
+    public <S2> Result<S2, F> bind(@NonNull Function<S, Result<S2, F>> binding) {
         //noinspection unchecked
         return (Result<S2, F>) this;
     }
@@ -97,7 +96,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public Result<S, F> peekEither(Consumer<S> consumer, Consumer<F> errConsumer) {
+    public Result<S, F> peekEither(@NonNull Consumer<S> consumer, @NonNull Consumer<F> errConsumer) {
         errConsumer.accept(failure);
         return this;
     }
@@ -106,7 +105,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public Result<S, F> peek(Consumer<S> consumer) {
+    public Result<S, F> peek(@NonNull Consumer<S> consumer) {
         return this;
     }
 
@@ -114,7 +113,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public Result<S, F> peekFailure(Consumer<F> consumer) {
+    public Result<S, F> peekFailure(@NonNull Consumer<F> consumer) {
         consumer.accept(failure);
         return this;
     }
@@ -131,7 +130,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <E extends RuntimeException> S orThrow(Function<F, E> exceptionFunction) throws E {
+    public <E extends RuntimeException> S orThrow(@NonNull Function<F, E> exceptionFunction) throws E {
         throw exceptionFunction.apply(failure);
     }
 
@@ -139,7 +138,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public S orElse(Function<F, S> failureMapping) {
+    public S orElse(@NonNull Function<F, S> failureMapping) {
         return failureMapping.apply(failure);
     }
 
@@ -147,7 +146,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public <F2> Result<S, F2> bindFailure(Function<F, Result<S, F2>> binding) {
+    public <F2> Result<S, F2> bindFailure(@NonNull Function<F, Result<S, F2>> binding) {
         return binding.apply(failure);
     }
 
@@ -163,10 +162,7 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
-    public Result<S, Void> recover(Function<F, S> recoveryFn) {
-        if (recoveryFn == null) {
-            throw new NullPointerException("recoveryFn was null");
-        }
+    public Result<S, Void> recover(@NonNull Function<F, S> recoveryFn) {
         return Result.success(recoveryFn.apply(failure));
     }
 
@@ -176,14 +172,6 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
     @Override
     public String toString() {
         return "Failure{failure=%s}".formatted(failure);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(Object o) {
-        return o != null && getClass() == o.getClass() && failure.equals(((Failure<?, ?>) o).failure);
     }
 
     /**

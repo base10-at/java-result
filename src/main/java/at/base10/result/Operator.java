@@ -1,5 +1,7 @@
 package at.base10.result;
 
+import lombok.NonNull;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +39,7 @@ public sealed interface Operator permits None {
      * @param errMapper Function to transform the failure value.
      * @return A function that applies the transformations to the Result.
      */
-    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> mapEither(Function<S, S2> mapper, Function<F, F2> errMapper) {
+    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> mapEither(@NonNull Function<S, S2> mapper, @NonNull Function<F, F2> errMapper) {
         return r -> r.mapEither(mapper, errMapper);
     }
 
@@ -50,7 +52,7 @@ public sealed interface Operator permits None {
      * @param mapper Function to transform the success value.
      * @return A function that applies the transformation to the Result.
      */
-    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> map(Function<S, S2> mapper) {
+    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> map(@NonNull Function<S, S2> mapper) {
         return r -> r.map(mapper);
     }
 
@@ -63,7 +65,7 @@ public sealed interface Operator permits None {
      * @param mapper Function to transform the failure value.
      * @return A function that applies the transformation to the Result.
      */
-    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> mapFailure(Function<F, F2> mapper) {
+    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> mapFailure(@NonNull Function<F, F2> mapper) {
         return r -> r.mapFailure(mapper);
     }
 
@@ -76,7 +78,7 @@ public sealed interface Operator permits None {
      * @param failure Consumer to process the failure value.
      * @return A function that applies the side effects and returns the original Result.
      */
-    static <S, F> Function<Result<S, F>, Result<S, F>> peekEither(Consumer<S> success, Consumer<F> failure) {
+    static <S, F> Function<Result<S, F>, Result<S, F>> peekEither(@NonNull Consumer<S> success, @NonNull Consumer<F> failure) {
         return r -> {
             r.either(ConsumerToVoidFunction(success), ConsumerToVoidFunction(failure));
             return r;
@@ -91,7 +93,7 @@ public sealed interface Operator permits None {
      * @param success Consumer to process the success value.
      * @return A function that applies the side effect and returns the original Result.
      */
-    static <S, F> Function<Result<S, F>, Result<S, F>> peek(Consumer<S> success) {
+    static <S, F> Function<Result<S, F>, Result<S, F>> peek(@NonNull Consumer<S> success) {
         return r -> {
             r.either(ConsumerToVoidFunction(success), f -> null);
             return r;
@@ -108,7 +110,7 @@ public sealed interface Operator permits None {
      * @param success A consumer to execute if the {@code Result} is successful.
      * @return A function that applies the consumer on success and returns the original {@code Result}.
      */
-    static <S, F> Function<Result<S, F>, Result<S, F>> ifSuccess(Consumer<S> success) {
+    static <S, F> Function<Result<S, F>, Result<S, F>> ifSuccess(@NonNull Consumer<S> success) {
         return peek(success);
     }
 
@@ -121,7 +123,7 @@ public sealed interface Operator permits None {
      * @param failure A consumer to execute if the {@code Result} is a failure.
      * @return A function that applies the consumer on failure and returns the original {@code Result}.
      */
-    static <S, F> Function<Result<S, F>, Result<S, F>> peekFailure(Consumer<F> failure) {
+    static <S, F> Function<Result<S, F>, Result<S, F>> peekFailure(@NonNull Consumer<F> failure) {
         return r -> {
             r.either(f -> null, ConsumerToVoidFunction(failure));
             return r;
@@ -137,7 +139,7 @@ public sealed interface Operator permits None {
      * @param failure A consumer to execute if the {@code Result} is a failure.
      * @return A function that applies the consumer on failure and returns the original {@code Result}.
      */
-    static <S, F> Function<Result<S, F>, Result<S, F>> ifFailure(Consumer<F> failure) {
+    static <S, F> Function<Result<S, F>, Result<S, F>> ifFailure(@NonNull Consumer<F> failure) {
         return peekFailure(failure);
     }
 
@@ -162,7 +164,7 @@ public sealed interface Operator permits None {
      * @param exceptionFunction Function to create an exception from the failure value.
      * @return A function that extracts the success value or throws an exception.
      */
-    static <S, F, E extends RuntimeException> Function<Result<S, F>, S> orThrow(Function<F, E> exceptionFunction) {
+    static <S, F, E extends RuntimeException> Function<Result<S, F>, S> orThrow(@NonNull Function<F, E> exceptionFunction) {
         return r -> r.orThrow(exceptionFunction);
     }
 
@@ -183,7 +185,7 @@ public sealed interface Operator permits None {
      * @param binding A function that transforms a success value into another {@code Result}.
      * @return A function that applies the binding transformation if the {@code Result} is successful.
      */
-    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> bind(Function<S, Result<S2, F>> binding) {
+    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> bind(@NonNull Function<S, Result<S2, F>> binding) {
         return r -> r.bind(binding);
     }
 
@@ -199,7 +201,7 @@ public sealed interface Operator permits None {
      * @param bindingFailure A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the appropriate transformation based on success or failure.
      */
-    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bindEither(Function<S, Result<S2, F2>> binding, Function<F, Result<S2, F2>> bindingFailure) {
+    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> bindEither(@NonNull Function<S, Result<S2, F2>> binding, @NonNull Function<F, Result<S2, F2>> bindingFailure) {
         return r -> r.bindEither(binding, bindingFailure);
     }
 
@@ -213,7 +215,7 @@ public sealed interface Operator permits None {
      * @param binding A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the binding transformation if the {@code Result} is a failure.
      */
-    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(Function<F, Result<S, F2>> binding) {
+    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> bindFailure(@NonNull Function<F, Result<S, F2>> binding) {
         return r -> r.bindFailure(binding);
     }
 
@@ -234,7 +236,7 @@ public sealed interface Operator permits None {
      * or this result itself if it is already a {@code Success}
      * @throws NullPointerException if {@code recoveryFn} is {@code null}
      */
-    static <S, F> Function<Result<S, F>, Result<S, Void>> recover(Function<F, S> recoveryFn) {
+    static <S, F> Function<Result<S, F>, Result<S, Void>> recover(@NonNull Function<F, S> recoveryFn) {
         return r -> r.recover(recoveryFn);
     }
 
@@ -247,7 +249,7 @@ public sealed interface Operator permits None {
      * @param binding A function that asynchronously transforms a success value into another {@code Result}.
      * @return A function that applies the binding transformation asynchronously if the {@code Result} is successful.
      */
-    static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> bindAsync(Function<S, CompletableFuture<Result<S2, F>>> binding) {
+    static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> bindAsync(@NonNull Function<S, CompletableFuture<Result<S2, F>>> binding) {
         return r -> r.either(binding, e -> CompletableFuture.completedFuture(Result.failure(e)));
     }
 
@@ -260,7 +262,7 @@ public sealed interface Operator permits None {
      * @param binding A function that asynchronously transforms a failure value into another {@code Result}.
      * @return A function that applies the binding transformation asynchronously if the {@code Result} is a failure.
      */
-    static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> bindFailureAsync(Function<F, CompletableFuture<Result<S, F2>>> binding) {
+    static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> bindFailureAsync(@NonNull Function<F, CompletableFuture<Result<S, F2>>> binding) {
         return r -> r.either(e -> CompletableFuture.completedFuture(Result.success(e)), binding);
     }
 
