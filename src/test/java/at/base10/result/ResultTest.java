@@ -157,6 +157,47 @@ class ResultTest {
     }
 
     @Test
+    void test_recover_failure() {
+        Result<String, Void> result = Result.failure(4, String.class)
+                .recover(x -> x + "2");
+        assertSuccessEquals("42", result);
+    }
+
+    @Test
+    void test_recover_success() {
+        Result<String, Void> result = Result.success("42", Integer.class)
+                .recover(x -> x + "1");
+        assertSuccessEquals("42", result);
+    }
+
+    @Test
+    void test_operation_recover_failure() {
+        Result<String, Void> result = Result.failure(4, String.class)
+                .then(recover(x -> x + "2"));
+        assertSuccessEquals("42", result);
+    }
+
+    @Test
+    void test_operation_recover_success() {
+        Result<String, Void> result = Result.success("42", Integer.class)
+                .then(recover(x -> x + "1"));
+        assertSuccessEquals("42", result);
+    }
+
+    @Test
+    void test_operation_recover_null() {
+        assertEquals("recoveryFn was null",
+                assertThrows(NullPointerException.class, () -> Result.failure("42", Integer.class)
+                        .then(recover(null))
+                ).getMessage());
+
+        assertEquals("recoveryFn was null",
+                assertThrows(NullPointerException.class, () -> Result.success("42", Integer.class)
+                        .then(recover(null))
+                ).getMessage());
+    }
+
+    @Test
     void test_bindFailure3() {
 
         var result = Result.failure(42, String.class)

@@ -11,8 +11,8 @@ import java.util.function.Function;
  * Representing the result of an operation succeeded.
  *
  * @param value the success value
- * @param <S> the type representing a successful result
- * @param <F> the type representing a failure result
+ * @param <S>   the type representing a successful result
+ * @param <F>   the type representing a failure result
  */
 public record Success<S, F>(S value) implements Result<S, F> {
 
@@ -160,6 +160,18 @@ public record Success<S, F>(S value) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public Result<S, Void> recover(Function<F, S> recoveryFn) {
+        if (recoveryFn == null) {
+            throw new NullPointerException("recoveryFn was null");
+        }
+        //noinspection unchecked
+        return (Result<S, Void>) this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
         return "Success{value=%s}".formatted(value);
     }
@@ -177,6 +189,6 @@ public record Success<S, F>(S value) implements Result<S, F> {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getClass().getCanonicalName() , value);
+        return Objects.hash(getClass().getCanonicalName(), value);
     }
 }

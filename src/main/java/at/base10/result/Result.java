@@ -20,7 +20,6 @@ import java.util.function.Supplier;
  *
  * @param <S> the type representing a successful result
  * @param <F> the type representing a failure result
- *
  * @see Success
  * @see Failure
  */
@@ -28,20 +27,21 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a successful Result instance.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
+     * @param <S>   the type representing a successful result
+     * @param <F>   the type representing a failure result
      * @param value The success value.
      * @return A Result representing success.
      */
     static <S, F> Result<S, F> success(S value) {
         return new Success<>(value);
     }
+
     /**
      * Creates a successful Result instance.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
-     * @param value The success value.
+     * @param <S>         the type representing a successful result
+     * @param <F>         the type representing a failure result
+     * @param value       The success value.
      * @param failureType The failure type.
      * @return A Result representing success.
      */
@@ -53,8 +53,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a failure Result instance.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
+     * @param <S>   the type representing a successful result
+     * @param <F>   the type representing a failure result
      * @param value The failure value.
      * @return A Result representing failure.
      */
@@ -65,9 +65,9 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a failure Result instance.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
-     * @param failure The failure value.
+     * @param <S>         the type representing a successful result
+     * @param <F>         the type representing a failure result
+     * @param failure     The failure value.
      * @param successType The success type.
      * @return A Result representing failure.
      */
@@ -79,8 +79,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Converts an Optional into a Result.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
+     * @param <S>      the type representing a successful result
+     * @param <F>      the type representing a failure result
      * @param optional The optional value.
      * @param supplier The failure supplier if optional is empty.
      * @return A success Result if optional is present, otherwise a failure Result.
@@ -93,7 +93,7 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Converts an Optional into a Result.
      *
-     * @param <S> the type representing a successful result
+     * @param <S>      the type representing a successful result
      * @param optional The optional value.
      * @return A success Result if optional is present, otherwise a failure Result.
      */
@@ -105,8 +105,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a predicate test.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
+     * @param <S>       the type representing a successful result
+     * @param <F>       the type representing a failure result
      * @param value     The value to test.
      * @param predicate The predicate function.
      * @param supplier  The failure supplier if predicate test fails.
@@ -119,7 +119,7 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a predicate test.
      *
-     * @param <S> the type representing a successful result
+     * @param <S>       the type representing a successful result
      * @param value     The value to test.
      * @param predicate The predicate function.
      * @return A success Result if predicate test passes, otherwise a failure Result.
@@ -131,8 +131,8 @@ public sealed interface Result<S, F> permits Success, Failure {
     /**
      * Creates a Result based on a boolean condition.
      *
-     * @param <S> the type representing a successful result
-     * @param <F> the type representing a failure result
+     * @param <S>       the type representing a successful result
+     * @param <F>       the type representing a failure result
      * @param value     The boolean value.
      * @param successFn Supplier for success value.
      * @param failureFn Supplier for failure value.
@@ -169,14 +169,14 @@ public sealed interface Result<S, F> permits Success, Failure {
     }
 
     /**
-     * @throws NoSuchElementException if is Failure
      * @return S returns the value
+     * @throws NoSuchElementException if is Failure
      */
     S value();
 
     /**
-     * @throws NoSuchElementException if is Success
      * @return S returns the failure value
+     * @throws NoSuchElementException if is Success
      */
     F failure();
 
@@ -308,12 +308,27 @@ public sealed interface Result<S, F> permits Success, Failure {
      * @param failureMapping a function that maps the failure value to a success value
      * @return the success value if present, otherwise the mapped failure value
      */
-    S orElse(Function<F, S> failureMapping) ;
+    S orElse(Function<F, S> failureMapping);
 
     /**
      * @return Optional an option of success type
      */
     Optional<S> toOptional();
 
+    /**
+     * Recovers from a failure by transforming the failure value into a success value.
+     * <p>
+     * If this result is a {@code Success}, it is returned as-is.
+     * If this result is a {@code Failure}, the given {@code recoveryFn} is applied to the failure value
+     * to produce a new {@code Success}.
+     * <p>
+     * This method is useful for providing a fallback or default value when a computation fails.
+     *
+     * @param recoveryFn a function that maps the failure value to a success value
+     * @return a {@code Success} containing the recovered value if this is a {@code Failure},
+     * or this result itself if it is already a {@code Success}
+     * @throws NullPointerException if {@code recoveryFn} is {@code null}
+     */
+    Result<S, Void> recover(Function<F, S> recoveryFn);
 
 }

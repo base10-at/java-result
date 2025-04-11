@@ -218,6 +218,27 @@ public sealed interface Operator permits None {
     }
 
     /**
+     * Recovers from a failure by transforming the failure value into a success value.
+     * <p>
+     * If this result is a {@code Success}, it is returned as-is.
+     * If this result is a {@code Failure}, the given {@code recoveryFn} is applied to the failure value
+     * to produce a new {@code Success}.
+     * <p>
+     * This method is useful for providing a fallback or default value when a computation fails.
+     * *
+     *
+     * @param <S>        The type of the success value.
+     * @param <F>        The type of the original failure value.
+     * @param recoveryFn a function that maps the failure value to a success value
+     * @return a {@code Success} containing the recovered value if this is a {@code Failure},
+     * or this result itself if it is already a {@code Success}
+     * @throws NullPointerException if {@code recoveryFn} is {@code null}
+     */
+    static <S, F> Function<Result<S, F>, Result<S, Void>> recover(Function<F, S> recoveryFn) {
+        return r -> r.recover(recoveryFn);
+    }
+
+    /**
      * Asynchronously transforms the success value of a {@code Result} using the provided binding function.
      *
      * @param <S>     The type of the original success value.

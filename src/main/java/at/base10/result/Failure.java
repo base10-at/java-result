@@ -11,8 +11,8 @@ import java.util.function.Function;
  * Representing the result of an operation failed.
  *
  * @param failure F the failure value
- * @param <S> the type representing a successful result
- * @param <F> the type representing a failure result
+ * @param <S>     the type representing a successful result
+ * @param <F>     the type representing a failure result
  */
 public record Failure<S, F>(F failure) implements Result<S, F> {
 
@@ -163,6 +163,17 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public Result<S, Void> recover(Function<F, S> recoveryFn) {
+        if (recoveryFn == null) {
+            throw new NullPointerException("recoveryFn was null");
+        }
+        return Result.success(recoveryFn.apply(failure));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String toString() {
         return "Failure{failure=%s}".formatted(failure);
     }
@@ -175,12 +186,11 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
         return o != null && getClass() == o.getClass() && failure.equals(((Failure<?, ?>) o).failure);
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public int hashCode() {
-        return Objects.hash(getClass().getCanonicalName() , failure);
+        return Objects.hash(getClass().getCanonicalName(), failure);
     }
 }
