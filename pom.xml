@@ -6,7 +6,7 @@
 
     <groupId>at.base10</groupId>
     <artifactId>result</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>result</name>
     <description>A fancy result library</description>
     <url>https://github.com/base10-at/java-result</url>

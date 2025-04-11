@@ -93,13 +93,13 @@ Result<Integer, String> finalResult = divide(10, 2).bind(value -> divide(value, 
 <dependency>
   <groupId>at.base10</groupId>
   <artifactId>result</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
 ### Gradle:
 ```groovy
-implementation 'at.base10:result:1.1.0'
+implementation 'at.base10:result:1.2.0'
 ```
 
 ## License
