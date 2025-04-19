@@ -169,14 +169,24 @@ public sealed interface Result<S, F> permits Success, Failure {
     }
 
     /**
-     * @return S returns the value
-     * @throws NoSuchElementException if is Failure
+     * Returns the success value held by this {@code Result}.
+     * <p>
+     * If this {@code Result} represents a success, the value is returned.
+     * If this {@code Result} represents a failure, calling this method will throw a {@code NoSuchElementException}.
+     *
+     * @return the success value
+     * @throws NoSuchElementException if this Result is a failure
      */
     S value();
 
     /**
-     * @return S returns the failure value
-     * @throws NoSuchElementException if is Success
+     * Returns the failure value held by this {@code Result}.
+     * <p>
+     * If this {@code Result} represents a failure, the value is returned.
+     * If this {@code Result} represents a success, calling this method will throw a {@code NoSuchElementException}.
+     *
+     * @return the failure value
+     * @throws NoSuchElementException if this Result is a success
      */
     F failure();
 

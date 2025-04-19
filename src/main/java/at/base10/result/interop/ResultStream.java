@@ -2,10 +2,10 @@ package at.base10.result.interop;
 
 import at.base10.result.Result;
 
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static at.base10.result.Operator.map;
 import static at.base10.result.Operator.mapEither;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
@@ -76,15 +76,11 @@ public sealed interface ResultStream permits None {
      * @return A {@code Result} containing a stream of success values if all succeed, or the first encountered failure.
      */
     static <S, F> Result<Stream<S>, F> sequenceMonadic(Stream<Result<S, F>> stream) {
-        return stream.map(mapToStream()).reduce(success(Stream.of()), ResultStream::monadicReducer);
+        return ResultList.sequenceMonadic(stream::iterator).map(Collection::stream);
     }
 
     private static <S, F> Result<Stream<S>, Stream<F>> applicativeReducer(Result<Stream<S>, Stream<F>> acc, Result<Stream<S>, Stream<F>> elem) {
         return acc.either(reduceSuccess(elem), reduceFailure(acc, elem));
-    }
-
-    private static <S, F> Result<Stream<S>, F> monadicReducer(Result<Stream<S>, F> acc, Result<Stream<S>, F> elem) {
-        return acc.either(reduceSuccess(elem), error -> acc);
     }
 
     private static <S, F> Function<Stream<F>, Result<Stream<S>, Stream<F>>> reduceFailure(Result<Stream<S>, Stream<F>> acc, Result<Stream<S>, Stream<F>> elem) {
@@ -97,9 +93,5 @@ public sealed interface ResultStream permits None {
 
     private static <S, F> Function<Result<S, F>, Result<Stream<S>, Stream<F>>> mapEitherToStream() {
         return mapEither(Stream::of, Stream::of);
-    }
-
-    private static <S, F> Function<Result<S, F>, Result<Stream<S>, F>> mapToStream() {
-        return map(Stream::of);
     }
 }

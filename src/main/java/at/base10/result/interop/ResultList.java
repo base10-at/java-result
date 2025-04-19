@@ -2,13 +2,16 @@ package at.base10.result.interop;
 
 
 import at.base10.result.Result;
+import lombok.val;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static at.base10.result.Operator.map;
 import static at.base10.result.Operator.mapEither;
+import static at.base10.result.Result.failure;
+import static at.base10.result.Result.success;
 
 /**
  * A utility class providing functional operations on {@code List} values in the context of {@code Result}.
@@ -105,27 +108,30 @@ public sealed interface ResultList permits None {
      * @return A function that transforms a list of {@code V} into a {@code Result<List<S>, F>}, stopping at the first failure.
      */
     static <V, S, F> Function<List<V>, Result<List<S>, F>> traverseMonadic(Function<V, Result<S, F>> mapping) {
-        return list -> ResultStream.traverseMonadic(mapping).andThen(mapToList()).apply(list.stream());
+        return list -> sequenceMonadic(list.stream().map(mapping)::iterator);
     }
 
     /**
      * Converts a list of {@code Result} objects into a single {@code Result} containing a list of success values.
      * Uses a monadic approach, meaning failures are short-circuited and the first failure encountered is returned.
      *
-     * @param <S>  The success type of the result.
-     * @param <F>  The failure type of the result.
-     * @param list The list of {@code Result<S, F>} values.
+     * @param <S>        The success type of the result.
+     * @param <F>        The failure type of the result.
+     * @param iteratable The list of {@code Result<S, F>} values.
      * @return A {@code Result} containing a list of success values if all succeed, or the first encountered failure.
      */
-    static <S, F> Result<List<S>, F> sequenceMonadic(List<Result<S, F>> list) {
-        return ResultStream.sequenceMonadic(list.stream()).then(mapToList());
+    static <S, F> Result<List<S>, F> sequenceMonadic(Iterable<Result<S, F>> iteratable) {
+        val result = new ArrayList<S>();
+        for (final Result<S, F> item : iteratable) {
+            if (item.isFailure()) {
+                return failure(item.failure());
+            }
+            result.add(item.value());
+        }
+        return success(result);
     }
 
     private static <S, F> Function<Result<Stream<S>, Stream<F>>, Result<List<S>, List<F>>> mapEitherToList() {
         return mapEither(Stream::toList, Stream::toList);
-    }
-
-    private static <S, F> Function<Result<Stream<S>, F>, Result<List<S>, F>> mapToList() {
-        return map(Stream::toList);
     }
 }
