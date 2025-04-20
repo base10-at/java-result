@@ -46,6 +46,14 @@ public record Success<S, F>(S value) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public Result<F, S> swap() {
+        return new Failure<>(this.value());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public <R2> R2 either(@NonNull Function<S, R2> successFn, @NonNull Function<F, R2> failureFn) {
         return successFn.apply(value);
     }

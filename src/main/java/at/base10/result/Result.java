@@ -199,6 +199,12 @@ public sealed interface Result<S, F> permits Success, Failure {
      */
     <S2> S2 then(Function<Result<S, F>, S2> fn);
 
+    /**
+     * Swaps the success and failure values of a Result.
+     *
+     * @return A function that transforms a Result&lt;S, F&gt; into a Result&lt;F, S&gt;.
+     */
+    Result<F, S> swap();
 
     /**
      * Transforms both success and failure values using the provided mapping functions.

@@ -84,6 +84,21 @@ class ResultTest {
     }
 
     @Test
+    void test_swap_defaultsTo() {
+        assertSuccessEquals(42, failure(42).then(swap()));
+    }
+
+    @Test
+    void test_swap_failure() {
+        assertSuccessEquals(42, failure(42).swap());
+    }
+
+    @Test
+    void test_swap_success() {
+        assertFailureEquals(42, success(42).swap());
+    }
+
+    @Test
     void test_map() {
         assertSuccessEquals("421",
                 success(42)

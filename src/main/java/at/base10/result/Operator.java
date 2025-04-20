@@ -19,13 +19,25 @@ public sealed interface Operator permits None {
 
     /**
      * Swaps the success and failure values of a Result.
+     * Alias for {@link #swap()}.
      *
      * @param <S> The type of the success value.
      * @param <F> The type of the failure value.
      * @return A function that transforms a Result&lt;S, F&gt; into a Result&lt;F, S&gt;.
      */
     static <S, F> Function<Result<S, F>, Result<F, S>> flip() {
-        return r -> r.either(Result::failure, Result::success);
+        return Result::swap;
+    }
+
+    /**
+     * Swaps the success and failure values of a Result.
+     *
+     * @param <S> The type of the success value.
+     * @param <F> The type of the failure value.
+     * @return A function that transforms a Result&lt;S, F&gt; into a Result&lt;F, S&gt;.
+     */
+    static <S, F> Function<Result<S, F>, Result<F, S>> swap() {
+        return Result::swap;
     }
 
     /**
