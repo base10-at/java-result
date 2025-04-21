@@ -2,12 +2,14 @@ package at.base10.result;
 
 import lombok.NonNull;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * {@inheritDoc}
@@ -181,6 +183,20 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
     @Override
     public <F2> Result<S, F2> bindFailure(@NonNull Function<F, Result<S, F2>> binding) {
         return binding.apply(failure);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<S> toList() {
+        return List.of();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Stream<S> toStream() {
+        return Stream.empty();
     }
 
     /**

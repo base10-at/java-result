@@ -1,11 +1,13 @@
 package at.base10.result;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * An interface representing the result of an operation that can either succeed or fail.
@@ -373,6 +375,21 @@ public sealed interface Result<S, F> permits Success, Failure {
      * @return the success value if present, otherwise the mapped failure value
      */
     S orElse(Function<F, S> failureMapping);
+
+
+    /**
+     * Converts the Result into a List containing the success value, or an empty list if failure.
+     *
+     * @return A function that converts the Result into a List.
+     */
+    List<S> toList();
+
+    /**
+     * Converts the Result into a Stream containing the success value, or an empty stream if failure.
+     *
+     * @return A function that converts the Result into a Stream.
+     */
+    Stream<S> toStream();
 
     /**
      * @return Optional an option of success type

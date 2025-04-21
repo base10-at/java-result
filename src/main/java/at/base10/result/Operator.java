@@ -384,7 +384,7 @@ public sealed interface Operator permits None {
      * @return A function that converts the Result into a List.
      */
     static <S, F> Function<Result<S, F>, List<S>> toList() {
-        return r -> r.either(List::of, toConst(List.of()));
+        return Result::toList;
     }
 
     /**
@@ -395,7 +395,7 @@ public sealed interface Operator permits None {
      * @return A function that converts the Result into a Stream.
      */
     static <S, F> Function<Result<S, F>, Stream<S>> toStream() {
-        return r -> r.either(Stream::of, toConst(Stream.empty()));
+        return Result::toStream;
     }
 
     /**
