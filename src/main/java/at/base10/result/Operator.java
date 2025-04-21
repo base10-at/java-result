@@ -288,7 +288,7 @@ public sealed interface Operator permits None {
      * @param mapping A function that transforms a success value into another {@code Result}.
      * @return A function that applies the mapping transformation if the {@code Result} is successful.
      */
-    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> flatMap(Function<S, Result<S2, F>> mapping) {
+    static <S, S2, F> Function<Result<S, F>, Result<S2, F>> flatMap(@NonNull Function<S, Result<S2, F>> mapping) {
         return r -> r.flatMap(mapping);
     }
 
@@ -304,7 +304,7 @@ public sealed interface Operator permits None {
      * @param mappingFailure A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the appropriate transformation based on success or failure.
      */
-    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> flatMapEither(Function<S, Result<S2, F2>> mapping, Function<F, Result<S2, F2>> mappingFailure) {
+    static <S, S2, F, F2> Function<Result<S, F>, Result<S2, F2>> flatMapEither(@NonNull Function<S, Result<S2, F2>> mapping, @NonNull Function<F, Result<S2, F2>> mappingFailure) {
         return r -> r.flatMapEither(mapping, mappingFailure);
     }
 
@@ -318,7 +318,7 @@ public sealed interface Operator permits None {
      * @param mapping A function that transforms a failure value into another {@code Result}.
      * @return A function that applies the mapping transformation if the {@code Result} is a failure.
      */
-    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> flatMapFailure(Function<F, Result<S, F2>> mapping) {
+    static <S, F, F2> Function<Result<S, F>, Result<S, F2>> flatMapFailure(@NonNull Function<F, Result<S, F2>> mapping) {
         return r -> r.flatMapFailure(mapping);
     }
 
@@ -331,7 +331,7 @@ public sealed interface Operator permits None {
      * @param mapping A function that asynchronously transforms a success value into another {@code Result}.
      * @return A function that applies the mapping transformation asynchronously if the {@code Result} is successful.
      */
-    static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> flatMapAsync(Function<S, CompletableFuture<Result<S2, F>>> mapping) {
+    static <S, S2, F> Function<Result<S, F>, CompletableFuture<Result<S2, F>>> flatMapAsync(@NonNull Function<S, CompletableFuture<Result<S2, F>>> mapping) {
         return r -> r.either(mapping, e -> CompletableFuture.completedFuture(Result.failure(e)));
     }
 
@@ -344,7 +344,7 @@ public sealed interface Operator permits None {
      * @param mapping A function that asynchronously transforms a failure value into another {@code Result}.
      * @return A function that applies the mapping transformation asynchronously if the {@code Result} is a failure.
      */
-    static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> flatMapFailureAsync(Function<F, CompletableFuture<Result<S, F2>>> mapping) {
+    static <S, F, F2> Function<Result<S, F>, CompletableFuture<Result<S, F2>>> flatMapFailureAsync(@NonNull Function<F, CompletableFuture<Result<S, F2>>> mapping) {
         return r -> r.either(e -> CompletableFuture.completedFuture(Result.success(e)), mapping);
     }
 
@@ -360,7 +360,7 @@ public sealed interface Operator permits None {
      * @param predicate The predicate to test the success value.
      * @return A function that returns true if the success value matches the predicate otherwise returns false.
      */
-    static <S, F> Function<Result<S, F>, Boolean> anyMatch(Predicate<S> predicate) {
+    static <S, F> Function<Result<S, F>, Boolean> anyMatch(@NonNull Predicate<S> predicate) {
         return r -> r.anyMatch(predicate);
     }
 
@@ -372,7 +372,7 @@ public sealed interface Operator permits None {
      * @param predicate The predicate to test the success value.
      * @return A function that returns true if all success values match the predicate or on failure otherwise returns false.
      */
-    static <S, F> Function<Result<S, F>, Boolean> allMatch(Predicate<S> predicate) {
+    static <S, F> Function<Result<S, F>, Boolean> allMatch(@NonNull Predicate<S> predicate) {
         return r -> r.allMatch(predicate);
     }
 
@@ -416,9 +416,39 @@ public sealed interface Operator permits None {
      * @param <F>          The type of the failure value.
      * @param defaultValue The default value to return if failure.
      * @return A function that returns the success value or the default value.
+     * @deprecated use defaultsToValue
      */
+    @Deprecated
+    @SuppressWarnings("DeprecatedIsStillUsed")
     static <S, F> Function<Result<S, F>, S> defaultsTo(S defaultValue) {
-        return r -> r.either(Function.identity(), toConst(defaultValue));
+        return defaultsToValue(defaultValue);
+    }
+
+    /**
+     * Returns the success value or a value supplied by the given Supplier if failure.
+     *
+     * @param <S>      The type of the success value.
+     * @param <F>      The type of the failure value.
+     * @param supplier The supplier providing a default value in case of failure.
+     * @return A function that returns the success value or a supplied default.
+     * @deprecated use defaultsWith
+     */
+    @Deprecated
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    static <S, F> Function<Result<S, F>, S> defaultsTo(@NonNull Supplier<S> supplier) {
+        return defaultsWith(supplier);
+    }
+
+    /**
+     * Returns the success value or a default value if failure.
+     *
+     * @param <S>          The type of the success value.
+     * @param <F>          The type of the failure value.
+     * @param defaultValue The default value to return if failure.
+     * @return A function that returns the success value or the default value.
+     */
+    static <S, F> Function<Result<S, F>, S> defaultsToValue(S defaultValue) {
+        return r -> r.orElse(toConst(defaultValue));
     }
 
     /**
@@ -429,8 +459,21 @@ public sealed interface Operator permits None {
      * @param supplier The supplier providing a default value in case of failure.
      * @return A function that returns the success value or a supplied default.
      */
-    static <S, F> Function<Result<S, F>, S> defaultsTo(Supplier<S> supplier) {
-        return r -> r.either(Function.identity(), toConst(supplier.get()));
+    static <S, F> Function<Result<S, F>, S> defaultsWith(@NonNull Supplier<S> supplier) {
+        return r -> r.orElse(toConst(supplier.get()));
+    }
+
+    /**
+     * Retrieves the success value if the result is successful, or applies the given function
+     * to transform the failure value into a success value.
+     *
+     * @param <S>            The type of the success value.
+     * @param <F>            The type of the failure value.
+     * @param failureMapping a function that maps the failure value to a success value
+     * @return the success value if present, otherwise the mapped failure value
+     */
+    static <S, F> Function<Result<S, F>, S> defaultsWith(@NonNull Function<F, S> failureMapping) {
+        return r -> r.orElse(failureMapping);
     }
 
     /**

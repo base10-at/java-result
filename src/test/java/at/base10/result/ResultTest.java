@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static at.base10.result.Assert.assertFailureEquals;
 import static at.base10.result.Assert.assertSuccessEquals;
@@ -74,7 +76,7 @@ class ResultTest {
     }
 
     @Test
-    void test_defaultsTo() {
+    void test_successEquals() {
         assertSuccessEquals(42, success(42));
     }
 
@@ -162,6 +164,16 @@ class ResultTest {
         assertFalse(Result.<Integer, Integer>failure(42).then(anyMatch(x -> x == 43)));
         assertFalse(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 43)));
         assertTrue(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 42)));
+        assertTrue(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 42)));
+        //noinspection DataFlowIssue
+        assertEquals(
+
+                "predicate is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>success(42).then(anyMatch(null))
+                ).getMessage()
+        );
     }
 
     @Test
@@ -170,6 +182,15 @@ class ResultTest {
         assertTrue(Result.<Integer, Integer>failure(42).then(allMatch(x -> x == 43)));
         assertFalse(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 43)));
         assertTrue(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 42)));
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "predicate is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>success(42).then(allMatch(null))
+                ).getMessage()
+        );
     }
 
     @Test
@@ -234,14 +255,46 @@ class ResultTest {
 
     @Test
     void test_defaultsToValue() {
+        assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsToValue(43)));
+        assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsToValue(43)));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void test_defaultsTo() {
         assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsTo(43)));
         assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsTo(43)));
     }
 
     @Test
+    void test_defaultsWithSupplier() {
+        assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsWith(() -> 43)));
+        assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsWith(() -> 43)));
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "supplier is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>success(42).then(defaultsWith((Supplier<Integer>) null))
+                ).getMessage()
+        );
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
     void test_defaultsToSupplier() {
         assertEquals(43, Result.<Integer, Integer>failure(42).then(defaultsTo(() -> 43)));
         assertEquals(42, Result.<Integer, Integer>success(42).then(defaultsTo(() -> 43)));
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "supplier is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>success(42).then(defaultsTo(null))
+                ).getMessage()
+        );
     }
 
     @Test
@@ -293,13 +346,28 @@ class ResultTest {
     @Test
     void testThrow() {
         assertEquals(42, success(42).orThrow(f -> new IllegalArgumentException("foo")));
-        assertThrows(IllegalArgumentException.class, () -> failure(42).orThrow(f -> new IllegalArgumentException("foo")), "foo");
+
+        assertEquals(
+                "foo",
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> failure(42).orThrow(f -> new IllegalArgumentException("foo"))
+                ).getMessage()
+        );
+
     }
 
     @Test
     void testThrowOp() {
         assertEquals(42, success(42).then(orThrow(f -> new IllegalArgumentException("foo"))));
-        assertThrows(IllegalArgumentException.class, () -> failure(42).then(orThrow(f -> new IllegalArgumentException("foo"))), "foo");
+        assertEquals(
+                "foo",
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> failure(42).then(orThrow(f -> new IllegalArgumentException("foo")))
+                ).getMessage()
+        );
+
     }
 
     @Test
@@ -318,6 +386,21 @@ class ResultTest {
     void testOrElse() {
         assertEquals(42, success(42, Integer.class).orElse(f -> f + 1));
         assertEquals(43, failure(42, Integer.class).orElse(f -> f + 1));
+    }
+
+    @Test
+    void test_defaultsWith() {
+        assertEquals(42, success(42, Integer.class).then(defaultsWith(f -> f + 1)));
+        assertEquals(43, failure(42, Integer.class).then(defaultsWith(f -> f + 1)));
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "failureMapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>success(42).then(defaultsWith((Function<Integer, Integer>) null))
+                ).getMessage()
+        );
     }
 
     @Test

@@ -8,6 +8,7 @@ import static at.base10.result.Assert.assertFailureEquals;
 import static at.base10.result.Assert.assertSuccessEquals;
 import static at.base10.result.Operator.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 public class ResultFlatMapAsyncTest {
@@ -58,6 +59,23 @@ public class ResultFlatMapAsyncTest {
     }
 
     @Test
+    void test_flatMapAsync_with_null() {
+
+
+        //noinspection DataFlowIssue
+        assertEquals(
+
+                "mapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, String>failure("INIT")
+                                .then(flatMapAsync(null))
+                ).getMessage()
+        );
+
+    }
+
+    @Test
     void test_flatMapFailureAsync_to_success_if_Success() {
 
         assertSuccessEquals(20,
@@ -96,6 +114,21 @@ public class ResultFlatMapAsyncTest {
                         .then(flatMapFailureAsync(x -> PromiseHelper.promiseResultInt(2, x, true)))
                         .thenApply(map(x -> x - 2))
                         .join()
+        );
+
+    }
+
+    @Test
+    void test_flatMapFailureAsync_with_null() {
+        //noinspection DataFlowIssue
+        assertEquals(
+
+                "mapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>failure(22)
+                                .then(flatMapFailureAsync(null))
+                ).getMessage()
         );
     }
 

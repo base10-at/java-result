@@ -8,6 +8,8 @@ import static at.base10.result.Assert.assertSuccessEquals;
 import static at.base10.result.Operator.*;
 import static at.base10.result.Result.failure;
 import static at.base10.result.Result.success;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Nested
 public class ResultFlatMapTest {
@@ -55,7 +57,66 @@ public class ResultFlatMapTest {
     }
 
     @Test
+    void test_flatMapFailure_with_null() {
+        //noinspection DataFlowIssue
+        assertEquals(
+                "mapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<String, Integer>failure(42)
+                                .then(flatMapFailure(null))
+                ).getMessage()
+        );
+    }
+
+    @Test
+    void test_flatMapEither_with_null() {
+        //noinspection DataFlowIssue
+        assertEquals(
+                "mapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>failure(42)
+                                .then(flatMapEither(null, Result::success))
+                ).getMessage()
+        );
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "mappingFailure is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.<Integer, Integer>failure(42)
+                                .then(flatMapEither(Result::success, null))
+                ).getMessage()
+        );
+    }
+
+    @Test
     void test_flatMapFailure3() {
+
+        var result = Result.failure(42, String.class)
+                .then(flatMapFailure(x -> failure(x + "1")))
+                .then(flatMapFailure(x -> failure(x + "1")))
+                .then(flatMap(x -> failure(x.trim() + 1, Void.class)))
+                .then(flatMap(x -> success(1)));
+
+        assertFailureEquals("4211", result);
+    }
+
+    @Test
+    void test_flatMap_with_null() {
+
+
+        //noinspection DataFlowIssue
+        assertEquals(
+                "mapping is marked non-null but is null",
+                assertThrows(
+                        NullPointerException.class,
+                        () -> Result.failure(42, String.class)
+                                .then(flatMap(null))
+                ).getMessage()
+        );
 
         var result = Result.failure(42, String.class)
                 .then(flatMapFailure(x -> failure(x + "1")))
