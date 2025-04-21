@@ -211,6 +211,14 @@ public record Failure<S, F>(F failure) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public int count() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Result<S, Void> recover(@NonNull Function<F, S> recoveryFn) {
         return Result.success(recoveryFn.apply(failure));
     }

@@ -412,4 +412,12 @@ public sealed interface Result<S, F> permits Success, Failure {
      */
     Result<S, Void> recover(Function<F, S> recoveryFn);
 
+    /**
+     * Counts the number of successful results.
+     * <p>
+     * Returns 1 if the Result represents success, otherwise returns 0.
+     *
+     * @return A function that returns 1 if the Result is successful, otherwise 0.
+     */
+    int count();
 }

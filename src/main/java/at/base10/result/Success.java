@@ -213,6 +213,14 @@ public record Success<S, F>(S value) implements Result<S, F> {
      * {@inheritDoc}
      */
     @Override
+    public int count() {
+        return 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Result<S, Void> recover(@NonNull Function<F, S> recoveryFn) {
         //noinspection unchecked
         return (Result<S, Void>) this;

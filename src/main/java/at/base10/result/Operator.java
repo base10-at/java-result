@@ -443,7 +443,7 @@ public sealed interface Operator permits None {
      * @return A function that returns 1 if the Result is successful, otherwise 0.
      */
     static <S, F> Function<Result<S, F>, Integer> count() {
-        return r -> r.either(toConst(1), toConst(0));
+        return Result::count;
     }
 
     /**
