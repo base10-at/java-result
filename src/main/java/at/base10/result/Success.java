@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * {@inheritDoc}
@@ -197,6 +198,22 @@ public record Success<S, F>(S value) implements Result<S, F> {
     public Result<S, Void> recover(@NonNull Function<F, S> recoveryFn) {
         //noinspection unchecked
         return (Result<S, Void>) this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean anyMatch(Predicate<S> predicate) {
+        return predicate.test(value);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean allMatch(Predicate<S> predicate) {
+        return predicate.test(value);
     }
 
     /**

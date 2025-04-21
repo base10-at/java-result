@@ -340,6 +340,22 @@ public sealed interface Result<S, F> permits Success, Failure {
     S orThrow();
 
     /**
+     * Checks if the success value matches the given predicate.
+     *
+     * @param predicate The predicate to test the success value.
+     * @return A function that returns true if the success value matches the predicate otherwise returns false.
+     */
+    boolean anyMatch(Predicate<S> predicate);
+
+    /**
+     * Checks if the success values match the given predicate.
+     *
+     * @param predicate The predicate to test the success value.
+     * @return A function that returns true if all success values match the predicate or on failure otherwise returns false.
+     */
+    boolean allMatch(Predicate<S> predicate);
+
+    /**
      * Retrieves the success value or throws an exception created by the provided function.
      *
      * @param <E>               The type of exception to be thrown, extending RuntimeException.

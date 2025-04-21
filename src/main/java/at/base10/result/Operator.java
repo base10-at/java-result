@@ -361,11 +361,11 @@ public sealed interface Operator permits None {
      * @return A function that returns true if the success value matches the predicate otherwise returns false.
      */
     static <S, F> Function<Result<S, F>, Boolean> anyMatch(Predicate<S> predicate) {
-        return r -> r.either(predicate::test, toConst(false));
+        return r -> r.anyMatch(predicate);
     }
 
     /**
-     * Checks if all success values match the given predicate.
+     * Checks if the success values match the given predicate.
      *
      * @param <S>       The type of the success value.
      * @param <F>       The type of the failure value.
@@ -373,7 +373,7 @@ public sealed interface Operator permits None {
      * @return A function that returns true if all success values match the predicate or on failure otherwise returns false.
      */
     static <S, F> Function<Result<S, F>, Boolean> allMatch(Predicate<S> predicate) {
-        return r -> r.either(predicate::test, toConst(true));
+        return r -> r.allMatch(predicate);
     }
 
     /**

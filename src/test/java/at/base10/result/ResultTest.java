@@ -157,7 +157,7 @@ class ResultTest {
     }
 
     @Test
-    void test_anyMatch() {
+    void test_anyMatch_op() {
         assertFalse(Result.<Integer, Integer>failure(42).then(anyMatch(x -> x == 42)));
         assertFalse(Result.<Integer, Integer>failure(42).then(anyMatch(x -> x == 43)));
         assertFalse(Result.<Integer, Integer>success(42).then(anyMatch(x -> x == 43)));
@@ -165,11 +165,27 @@ class ResultTest {
     }
 
     @Test
-    void test_allMatch() {
+    void test_allMatch_op() {
         assertTrue(Result.<Integer, Integer>failure(42).then(allMatch(x -> x == 42)));
         assertTrue(Result.<Integer, Integer>failure(42).then(allMatch(x -> x == 43)));
         assertFalse(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 43)));
         assertTrue(Result.<Integer, Integer>success(42).then(allMatch(x -> x == 42)));
+    }
+
+    @Test
+    void test_anyMatch() {
+        assertFalse(Result.<Integer, Integer>failure(42).anyMatch(x -> x == 42));
+        assertFalse(Result.<Integer, Integer>failure(42).anyMatch(x -> x == 43));
+        assertFalse(Result.<Integer, Integer>success(42).anyMatch(x -> x == 43));
+        assertTrue(Result.<Integer, Integer>success(42).anyMatch(x -> x == 42));
+    }
+
+    @Test
+    void test_allMatch() {
+        assertTrue(Result.<Integer, Integer>failure(42).allMatch(x -> x == 42));
+        assertTrue(Result.<Integer, Integer>failure(42).allMatch(x -> x == 43));
+        assertFalse(Result.<Integer, Integer>success(42).allMatch(x -> x == 43));
+        assertTrue(Result.<Integer, Integer>success(42).allMatch(x -> x == 42));
     }
 
     @Test
